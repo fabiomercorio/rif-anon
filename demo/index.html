@@ -1,0 +1,572 @@
+<title>RIF · The Paper Is a View — fastText demo</title>
+<style>
+  :root {
+    --paper: #FAFAF7; --ink: #16211F; --ink-soft: #5C6B68;
+    --claim: #0E6E62; --claim-bg: #0E6E6214;
+    --evid: #A16207; --evid-bg: #A1620714;
+    --line: #16211F1F; --panel: #FFFFFF; --code-bg: #10201D; --code-ink: #D7E4E1;
+    --flash: #0E6E6233;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #101615; --ink: #E4EAE8; --ink-soft: #93A5A1;
+      --claim: #4FB8A9; --claim-bg: #4FB8A91F;
+      --evid: #D9A441; --evid-bg: #D9A4411F;
+      --line: #E4EAE81F; --panel: #17201E; --code-bg: #0B1211; --code-ink: #C3D4D0;
+      --flash: #4FB8A93D;
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #FAFAF7; --ink: #16211F; --ink-soft: #5C6B68;
+    --claim: #0E6E62; --claim-bg: #0E6E6214;
+    --evid: #A16207; --evid-bg: #A1620714;
+    --line: #16211F1F; --panel: #FFFFFF; --code-bg: #10201D; --code-ink: #D7E4E1;
+    --flash: #0E6E6233;
+  }
+  :root[data-theme="dark"] {
+    --paper: #101615; --ink: #E4EAE8; --ink-soft: #93A5A1;
+    --claim: #4FB8A9; --claim-bg: #4FB8A91F;
+    --evid: #D9A441; --evid-bg: #D9A4411F;
+    --line: #E4EAE81F; --panel: #17201E; --code-bg: #0B1211; --code-ink: #C3D4D0;
+    --flash: #4FB8A93D;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--paper); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0; line-height: 1.55; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 32px 24px 80px; }
+  header h1 { font-family: Charter, "Iowan Old Style", Georgia, serif;
+    font-size: clamp(1.6rem, 3.4vw, 2.4rem); margin: 0 0 6px; text-wrap: balance; }
+  .thesis { color: var(--ink-soft); max-width: 62ch; margin: 0 0 8px; }
+  .eyebrow { font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--claim); font-weight: 600; margin-bottom: 10px; }
+  .pipeline { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .78rem;
+    color: var(--ink-soft); border: 1px solid var(--line); border-radius: 6px;
+    padding: 8px 12px; display: inline-block; margin: 10px 0 28px; overflow-x: auto; max-width: 100%; }
+  .pipeline b { color: var(--claim); font-weight: 600; }
+
+  .profiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px; margin-bottom: 26px; }
+  .profile { text-align: left; background: var(--panel); border: 1.5px solid var(--line);
+    border-radius: 10px; padding: 14px 16px; cursor: pointer; color: var(--ink);
+    font: inherit; transition: border-color .15s; }
+  .profile:hover { border-color: var(--claim); }
+  .profile:focus-visible { outline: 2px solid var(--claim); outline-offset: 2px; }
+  .profile[aria-pressed="true"] { border-color: var(--claim); box-shadow: inset 0 0 0 1px var(--claim); }
+  .profile .who { font-weight: 650; margin-bottom: 6px; }
+  .flags { display: flex; flex-wrap: wrap; gap: 5px; }
+  .flag { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .68rem;
+    background: var(--claim-bg); color: var(--claim); border-radius: 4px; padding: 2px 7px; }
+
+  .panes { display: grid; grid-template-columns: minmax(300px, 5fr) minmax(320px, 7fr);
+    gap: 20px; align-items: start; }
+  @media (max-width: 880px) { .panes { grid-template-columns: 1fr; } }
+  .pane-label { font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--ink-soft); font-weight: 600; margin: 0 0 10px; }
+
+  .graph { display: flex; flex-direction: column; gap: 8px; }
+  .node { background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--claim);
+    border-radius: 6px; padding: 10px 12px; font-size: .82rem;
+    transition: background .5s, opacity .3s; scroll-margin-top: 20px; }
+  .node.compiled-out { opacity: .38; border-left-style: dashed; }
+  .node.flash { background: var(--flash); }
+  .node-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+  .cid { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-weight: 700; color: var(--claim); }
+  .ctype { font-size: .66rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); }
+  .floor { font-size: .66rem; margin-left: auto; color: var(--ink-soft);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+  .node .stmt { margin: 0; }
+  .node .links { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 5px; }
+  .elink { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .66rem;
+    background: var(--evid-bg); color: var(--evid); border-radius: 4px; padding: 1px 6px; }
+  .dlink { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .66rem;
+    background: var(--claim-bg); color: var(--claim); border-radius: 4px; padding: 1px 6px; }
+  .nonclaim { margin-top: 6px; font-size: .74rem; color: var(--ink-soft); font-style: italic; }
+  .compiled-note { font-size: .68rem; color: var(--evid); margin-top: 4px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; display: none; }
+  .compiled-out .compiled-note { display: block; }
+  .node.voice { border-left-color: var(--evid); }
+  .node.voice .cid { color: var(--evid); }
+
+  .author { border: 1px solid var(--line); border-left: 3px solid var(--evid);
+    background: var(--evid-bg); border-radius: 6px; padding: 12px 16px; margin: 14px 0;
+    max-width: 66ch; }
+  .author .atag { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .62rem;
+    letter-spacing: .08em; text-transform: uppercase; color: var(--evid); display: block;
+    margin-bottom: 6px; }
+  .author p { margin: 0 0 8px; } .author p:last-child { margin-bottom: 0; }
+  .figure { border: 1.5px dashed var(--evid); border-radius: 8px; padding: 16px;
+    margin: 14px 0; max-width: 66ch; font-size: .85rem; color: var(--ink-soft); }
+  .figure .fbadge { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .64rem;
+    background: var(--evid-bg); color: var(--evid); border-radius: 4px; padding: 2px 7px;
+    margin-right: 6px; }
+  .figure .fcap { font-style: italic; margin-top: 8px; }
+
+  .render { background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+    padding: 28px 30px; font-family: Charter, "Iowan Old Style", Georgia, serif;
+    font-size: .98rem; }
+  .render h2 { font-size: 1.35rem; margin: 0 0 4px; text-wrap: balance; }
+  .render .meta { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .68rem;
+    color: var(--ink-soft); margin-bottom: 18px; }
+  .render h3 { font-size: 1.02rem; margin: 20px 0 6px; }
+  .render p, .render li { max-width: 66ch; margin: 0 0 10px; }
+  .render ul { padding-left: 20px; }
+  .render .eq { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .8rem;
+    background: var(--code-bg); color: var(--code-ink); border-radius: 6px;
+    padding: 10px 14px; overflow-x: auto; margin: 10px 0; }
+  .render code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .84em;
+    background: var(--claim-bg); border-radius: 4px; padding: 1px 5px; }
+  .cref { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .7rem;
+    background: var(--claim-bg); color: var(--claim); border: none; border-radius: 4px;
+    padding: 1px 6px; cursor: pointer; vertical-align: 8%; }
+  .cref:hover { text-decoration: underline; }
+  .cref:focus-visible { outline: 2px solid var(--claim); outline-offset: 1px; }
+  .cref.ev { background: var(--evid-bg); color: var(--evid); }
+  .hint { font-size: .76rem; color: var(--ink-soft); margin-top: 10px; }
+
+  details.src { margin-top: 30px; border: 1px solid var(--line); border-radius: 10px;
+    background: var(--panel); }
+  details.src summary { cursor: pointer; padding: 14px 18px; font-weight: 650;
+    font-size: .9rem; }
+  details.src pre { margin: 0; padding: 18px; background: var(--code-bg);
+    color: var(--code-ink); font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: .72rem; line-height: 1.5; overflow-x: auto;
+    border-radius: 0 0 10px 10px; max-height: 70vh; overflow-y: auto; }
+  @media (prefers-reduced-motion: reduce) { .node { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">RIF · Research Interchange Format — prototype (anonymous)</div>
+    <h1>The paper is a view, not an artifact</h1>
+    <p class="thesis">A published EACL paper — <em>Bag of Tricks for Efficient Text
+    Classification</em> (fastText, Joulin et al., EACL 2017) — encoded as a RIF
+    repository (claim graph, evidence with provenance, derived insights, style,
+    figures) and rendered for three different readers. Pick a profile: the
+    "paper" is recompiled.</p>
+    <div class="pipeline">RIF repo ── <b>render(graph, profile)</b> ──▶ a view for the reader</div>
+  </header>
+
+  <div class="profiles" role="group" aria-label="Reader profile">
+    <button class="profile" data-p="reviewer" aria-pressed="true">
+      <div class="who">Reviewer</div>
+      <div class="flags"><span class="flag">expert</span><span class="flag">goal:evaluate</span><span class="flag">10min</span><span class="flag">en</span><span class="flag">formalism:full</span></div>
+    </button>
+    <button class="profile" data-p="practitioner" aria-pressed="false">
+      <div class="who">Practitioner</div>
+      <div class="flags"><span class="flag">practitioner</span><span class="flag">goal:apply</span><span class="flag">5min</span><span class="flag">en</span><span class="flag">formalism:light</span></div>
+    </button>
+    <button class="profile" data-p="student" aria-pressed="false">
+      <div class="who">Student</div>
+      <div class="flags"><span class="flag">student</span><span class="flag">goal:learn</span><span class="flag">10min</span><span class="flag">en</span><span class="flag">formalism:none</span></div>
+    </button>
+  </div>
+
+  <div class="panes">
+    <section aria-label="RIF source">
+      <p class="pane-label">Source · claims.yaml</p>
+      <div class="graph" id="graph"></div>
+      <p class="hint">Dashed nodes are <em>compiled away</em> for the active profile
+      (below their <code>audience_floor</code>): their content is served through
+      narrative paraphrase.</p>
+
+      <p class="pane-label" style="margin-top:22px">Source · insights.yaml — derived (third-party encoding)</p>
+      <div class="graph">
+        <div class="node voice" id="node-K1"><div class="node-head"><span class="cid">K1–K3</span><span class="ctype">contributions · derived</span></div>
+          <p class="stmt">K1: a tuned linear baseline matching deep classifiers at a fraction of the cost · K2: hierarchical softmax + hashing make 312K-class classification practical · K3: an open-source library that turned the baseline into common practice.</p>
+          <div class="links"><span class="dlink">→ C4 C5 C6 C7</span></div></div>
+        <div class="node voice" id="node-R1"><div class="node-head"><span class="cid">R1</span><span class="ctype">reading · derived</span></div>
+          <p class="stmt">The comparison the paper insists on is not accuracy alone but the accuracy/cost ratio: near-parity at orders-of-magnitude lower cost.</p>
+          <div class="links"><span class="elink">E1</span><span class="elink">E2</span></div></div>
+        <div class="node voice" id="node-W1"><div class="node-head"><span class="cid">W1–W3</span><span class="ctype">watchpoints · derived</span><span class="floor">invariant: in every view</span></div>
+          <p class="stmt">W1 limitation: parity is not universal — the gap vs the deepest CNNs grows on Yelp F. / Amazon F. · W2 caution: competitive accuracy requires bigrams · W3 open-problem: hashing collisions unquantified.</p></div>
+        <div class="node voice" id="node-ENC"><div class="node-head"><span class="cid">encoding</span><span class="ctype">by: third-party</span></div>
+          <p class="stmt">This repository was encoded from the published text, not by the authors: insights carry <code>provenance: derived</code> and would be replaced by an author-produced encoding.</p></div>
+      </div>
+
+      <p class="pane-label" style="margin-top:22px">Source · style.yaml + figures/</p>
+      <div class="graph">
+        <div class="node voice" id="node-ST"><div class="node-head"><span class="cid">style</span><span class="ctype">corpus + register</span></div>
+          <p class="stmt">Corpus: word2vec (2013) · subword vectors (TACL 2017). Register: "we", minimal and direct, results carry the argument. Lexicon: prefer "baseline", "efficient", "on par with"; avoid "breakthrough".</p></div>
+        <div class="node voice" id="node-G1"><div class="node-head"><span class="cid">G1</span><span class="ctype">figure · original</span></div>
+          <p class="stmt">Model architecture (Fig. 1 of the paper), author-original: inserted <em>verbatim</em> in views, with per-audience captions.</p>
+          <div class="links"><span class="dlink">→ C2</span></div></div>
+        <div class="node voice" id="node-G2"><div class="node-head"><span class="cid">G2</span><span class="ctype">figure · generable</span></div>
+          <p class="stmt">Accuracy chart: the renderer may draw it from E1, labelled as renderer-generated.</p>
+          <div class="links"><span class="elink">E1</span></div></div>
+      </div>
+    </section>
+
+    <section aria-label="Generated view">
+      <p class="pane-label">Generated view · <span id="vlabel"></span></p>
+      <article class="render" id="render"></article>
+      <p class="hint">Every sentence is anchored to a node: click a reference
+      <button class="cref" onclick="flash('C4')">C4</button> to trace it back to the
+      source. A sentence the renderer cannot anchor is a sentence it cannot write.</p>
+    </section>
+  </div>
+
+  <details class="src">
+    <summary>Full RIF source · paper.rif.yaml (complete, third-party encoding of Joulin et al. 2017)</summary>
+    <pre id="fullsrc"></pre>
+  </details>
+</div>
+
+<script>
+const CLAIMS = [
+  { id:"C1", type:"positioning", floor:"layperson",
+    stmt:"Linear/shallow baselines for text classification were under-explored against increasingly complex deep models.",
+    ev:["E4"], dep:[] },
+  { id:"C2", type:"methodological", floor:"student",
+    stmt:"A linear classifier over averaged bag-of-n-gram embeddings is a viable text classifier.",
+    ev:["F1"], dep:["C1"] },
+  { id:"C3", type:"formal", floor:"expert",
+    stmt:"Hierarchical softmax reduces classification complexity from O(kh) to O(h log k); the hashing trick bounds n-gram memory.",
+    ev:["F1"], dep:["C2"] },
+  { id:"C4", type:"empirical", floor:"student",
+    stmt:"With bigrams, fastText is on par with deep classifiers on standard benchmarks (AG 92.5, DBpedia 98.6, ...), behind the deepest CNNs on fine-grained large datasets.",
+    ev:["E1"], dep:["C2"], non:"Non-claim: no state-of-the-art claim across the board — VDCNN keeps an edge on several large fine-grained datasets." },
+  { id:"C5", type:"empirical", floor:"layperson",
+    stmt:"Orders of magnitude faster: >1B words trained in <10 min on a multicore CPU; 500K sentences / 312K classes classified in <1 min.",
+    ev:["E2"], dep:["C2","C3"] },
+  { id:"C6", type:"empirical", floor:"practitioner",
+    stmt:"YFCC100M tag prediction: 46.1 prec@1 vs 35.6 (Tagspace), training in 13m38s.",
+    ev:["E3"], dep:["C2"] },
+  { id:"C7", type:"methodological", floor:"layperson",
+    stmt:"Released as the open-source fastText library.",
+    ev:["E5"], dep:["C2"] },
+];
+const FLOOR_RANK = { layperson:0, student:1, practitioner:2, expert:3 };
+const PROFILES = {
+  reviewer:     { rank:3, label:"expert · evaluate · en · formalism full" },
+  practitioner: { rank:2, label:"practitioner · apply · en · formalism light" },
+  student:      { rank:1, label:"student · learn · en · formalism none" },
+};
+const c = id => `<button class="cref" onclick="flash('${id}')">${id}</button>`;
+const e = id => `<span class="cref ev">${id}</span>`;
+
+const RENDERINGS = {
+reviewer: `
+<h2>fastText: a linear baseline on par with deep text classifiers</h2>
+<div class="meta">render(fasttext, reviewer) · style:author-corpus(2) · every sentence anchored to graph nodes</div>
+<h3>Contributions ${c("K1")}</h3>
+<p>(i) A tuned linear baseline matching deep classifiers on standard benchmarks at a
+fraction of the cost; (ii) scalability mechanisms (hierarchical softmax, hashing)
+enabling 312K-class classification; (iii) an open-source library ${c("K1")}.
+<em>Derived from the published text — third-party encoding.</em></p>
+<h3>Method ${c("C2")} → ${c("C3")}</h3>
+<p>N-gram features are embedded, averaged into a text representation and fed to a
+linear classifier ${c("C2")} ${e("F1")}. The softmax over k labels is replaced by a
+hierarchical softmax:</p>
+<div class="eq">complexity: O(kh) → O(h log k);  n-gram memory bounded by the hashing trick</div>
+<div class="figure"><span class="fbadge">G1 · author-original · verbatim</span>
+figures/fig1-model-architecture.pdf
+<div class="fcap">Model architecture: n-gram features embedded, averaged, and fed to a
+linear classifier with hierarchical softmax. ${c("G1")}</div></div>
+<h3>Evaluation — what to scrutinise ${c("C4")}, ${c("C5")}, ${c("C6")}</h3>
+<ul>
+<li>8 benchmarks: with bigrams, AG 92.5 / Sogou 96.8 / DBpedia 98.6 / Yelp P. 95.7;
+VDCNN retains the edge on Yelp F. (64.7 vs 63.9) and Amazon F. (63.0 vs 60.2)
+${e("E1")} <code>as-reported</code>.</li>
+<li>Speed: >1B words in <10 min, CPU; 500K sentences / 312K classes in <1 min ${e("E2")}.</li>
+<li>YFCC100M: 46.1 prec@1 vs 35.6 (Tagspace h=200), 13m38s training ${e("E3")}.</li>
+<li>Explicit non-claim: no across-the-board SOTA ${c("C4")}.</li>
+</ul>
+<div class="author"><span class="atag">✎ insights · derived (third-party encoding)</span>
+<p><strong>Reading ${c("R1")}:</strong> the argument is the accuracy/cost ratio, not
+accuracy alone: near-parity at orders-of-magnitude lower cost.</p>
+<p><strong>Watchpoints ${c("W1")}:</strong> W1 — parity degrades on large fine-grained
+datasets · W2 — bigrams are necessary for competitive accuracy · W3 (open) — hashing
+collisions unquantified.</p></div>
+<h3>Reusability ${c("C7")}</h3>
+<p>Open-source library ${e("E5")} <code>verified</code>.</p>`,
+
+practitioner: `
+<h2>You need a text classifier that trains in seconds</h2>
+<div class="meta">render(fasttext, practitioner) · style:author-corpus(2) · goal "apply" puts usage first</div>
+<h3>What it does for you ${c("C5")}, ${c("C7")}</h3>
+<p>fastText trains a competitive text classifier on commodity CPUs — more than a
+billion words in under ten minutes — and classifies half a million sentences among
+312K classes in under a minute ${c("C5")}.</p>
+<h3>Get started ${c("C7")}</h3>
+<div class="eq">./fasttext supervised -input train.txt -output model -wordNgrams 2</div>
+<p>Open-source ${e("E5")}. Use <code>-wordNgrams 2</code>: bigram features are what
+makes accuracy competitive ${c("W1")}.</p>
+<div class="figure"><span class="fbadge">G1 · author-original · verbatim</span>
+figures/fig1-model-architecture.pdf
+<div class="fcap">What the library builds internally: averaged n-gram embeddings +
+linear head. ${c("G1")}</div></div>
+<h3>What to expect ${c("C4")}, ${c("C6")}</h3>
+<p>On standard benchmarks it is on par with deep classifiers (AG 92.5, DBpedia 98.6)
+${e("E1")}; for many-label tagging it beat Tagspace by ~10 points prec@1 ${e("E3")}.</p>
+<div class="author"><span class="atag">✎ insights · derived (third-party encoding)</span>
+<p><strong>${c("W1")}</strong> On large fine-grained datasets (5-star Yelp/Amazon) the
+deepest CNNs still win by 1–3 points — if those points matter to you, budget for them.
+<strong>${c("W1")}</strong> Without bigrams the model is substantially weaker.</p></div>`,
+
+student: `
+<h2>Why a simple average of word vectors can classify text</h2>
+<div class="meta">render(fasttext, student) · style:author-corpus(2) · narrative-first, no equations</div>
+<h3>The problem ${c("C1")}</h3>
+<p>In 2016, text classification research was dominated by deep neural networks that
+took hours or days to train. This paper asked a simple question: how far can a
+much simpler — and much cheaper — model go? ${c("C1")}</p>
+<h3>The idea, step by step ${c("C2")} → ${c("C5")}</h3>
+<p><strong>1 · Represent.</strong> Every word (and pair of adjacent words) gets a
+vector; the text is represented by the average of its vectors ${c("C2")}.</p>
+<p><strong>2 · Classify.</strong> A single linear layer maps that average to the
+classes — no depth ${c("C2")}.</p>
+<p><strong>3 · Scale.</strong> Two tricks keep it fast even with hundreds of
+thousands of classes: labels are organised in a tree, and rare word-pairs share
+memory ${c("C3")}.</p>
+<div class="figure"><span class="fbadge">G1 · original figure by the authors</span>
+figures/fig1-model-architecture.pdf
+<div class="fcap">The whole model: word vectors averaged into one text vector, then a
+linear classifier. ${c("G1")}</div></div>
+<h3>Does it work? ${c("C4")}, ${c("C5")}</h3>
+<p>On the standard benchmarks of the time it matches deep networks almost everywhere
+${e("E1")} — while training in seconds instead of hours, on a normal CPU ${e("E2")}.</p>
+<div class="author"><span class="atag">✎ insights · derived (third-party encoding)</span>
+<p>Two honest caveats to remember ${c("W1")}: the simplest version (single words
+only) is weaker — the word-pair features matter; and on the hardest datasets the
+deep networks still win by a small margin. The lesson: always try the strong
+simple baseline first.</p></div>
+<h3>Try it ${c("C7")}</h3>
+<div class="eq">./fasttext supervised -input train.txt -output model -wordNgrams 2</div>`,
+};
+
+function drawGraph(profile) {
+  const rank = PROFILES[profile].rank;
+  document.getElementById("graph").innerHTML = CLAIMS.map(cl => {
+    const out = FLOOR_RANK[cl.floor] > rank;
+    return `<div class="node ${out ? "compiled-out" : ""}" id="node-${cl.id}">
+      <div class="node-head"><span class="cid">${cl.id}</span>
+        <span class="ctype">${cl.type}</span>
+        <span class="floor">floor:${cl.floor}</span></div>
+      <p class="stmt">${cl.stmt}</p>
+      <div class="links">${cl.dep.map(d => `<span class="dlink">← ${d}</span>`).join("")}
+        ${cl.ev.map(ev => `<span class="elink">${ev}</span>`).join("")}</div>
+      ${cl.non ? `<div class="nonclaim">${cl.non}</div>` : ""}
+      <div class="compiled-note">// compiled away: below audience_floor → narrative paraphrase</div>
+    </div>`;
+  }).join("");
+}
+function setProfile(p) {
+  document.querySelectorAll(".profile").forEach(b =>
+    b.setAttribute("aria-pressed", String(b.dataset.p === p)));
+  document.getElementById("render").innerHTML = RENDERINGS[p];
+  document.getElementById("vlabel").textContent = PROFILES[p].label;
+  drawGraph(p);
+}
+function flash(id) {
+  const n = document.getElementById("node-" + id);
+  if (!n) return;
+  n.scrollIntoView({ behavior: "smooth", block: "center" });
+  n.classList.add("flash");
+  setTimeout(() => n.classList.remove("flash"), 1200);
+}
+document.querySelectorAll(".profile").forEach(b =>
+  b.addEventListener("click", () => setProfile(b.dataset.p)));
+setProfile("reviewer");
+</script>
+<script>
+const FULL_RIF = `# RIF v0.2 encoding of:
+# Joulin, Grave, Bojanowski, Mikolov,
+# "Bag of Tricks for Efficient Text Classification", EACL 2017.
+# THIRD-PARTY ENCODING: produced from the published text, not by the authors.
+# All results carry provenance "as-reported" (from the paper's tables);
+# insights are marked "derived" (inferred from the published text, NOT authorial voice).
+
+rif_version: "0.2"
+
+encoding:
+  by: third-party          # author | third-party
+  source: "arXiv:1607.01759 / EACL 2017"
+  note: >
+    Insights below are derived from the published text and do not constitute
+    the authors' non-generable voice. An author-produced encoding would
+    replace them.
+
+work:
+  id: rif://joulin-2017-fasttext
+  title: "Bag of Tricks for Efficient Text Classification"
+  authors:
+    - { name: Armand Joulin }
+    - { name: Edouard Grave }
+    - { name: Piotr Bojanowski }
+    - { name: Tomas Mikolov }
+  published_as:
+    - { venue: "EACL 2017 (short papers)", year: 2017 }
+    - { venue: "arXiv:1607.01759", year: 2016 }
+  artifacts:
+    - { kind: code, uri: "https://github.com/facebookresearch/fastText" }
+
+claims:
+  - id: C1
+    type: positioning
+    statement: >
+      At the time of writing, linear/shallow baselines for text classification
+      were under-explored against increasingly complex deep models, despite
+      their known strength when properly tuned.
+    audience_floor: layperson
+    evidence: [E4]
+
+  - id: C2
+    type: methodological
+    statement: >
+      A linear classifier over averaged bag-of-n-gram embeddings (a shallow
+      architecture sharing its core with CBOW) is a viable text classifier.
+    audience_floor: student
+    depends_on: [C1]
+    evidence: [F1]
+
+  - id: C3
+    type: formal
+    statement: >
+      Hierarchical softmax over the labels reduces classification complexity
+      from O(kh) to O(h log k); the hashing trick bounds the memory of the
+      n-gram feature space.
+    audience_floor: expert
+    depends_on: [C2]
+    evidence: [F1]
+
+  - id: C4
+    type: empirical
+    statement: >
+      With bigram features, fastText is on par with deep learning classifiers
+      on standard sentiment/topic benchmarks (e.g., AG 92.5, Sogou 96.8,
+      DBpedia 98.6, Yelp P. 95.7), while remaining behind the deepest CNNs
+      on fine-grained large datasets (e.g., Amazon F. 60.2 vs 63.0 of VDCNN).
+    audience_floor: student
+    depends_on: [C2]
+    evidence: [E1]
+    non_claims:
+      - "No claim of state-of-the-art accuracy across the board: VDCNN retains an edge on several large fine-grained datasets."
+
+  - id: C5
+    type: empirical
+    statement: >
+      fastText is many orders of magnitude faster than deep classifiers:
+      it trains on more than one billion words in less than ten minutes on a
+      standard multicore CPU, and classifies half a million sentences among
+      312K classes in less than a minute.
+    audience_floor: layperson
+    depends_on: [C2, C3]
+    evidence: [E2]
+
+  - id: C6
+    type: empirical
+    statement: >
+      On YFCC100M tag prediction, fastText (h=200, bigrams) reaches 46.1
+      prec@1 against 35.6 of Tagspace (h=200), training in 13m38s.
+    audience_floor: practitioner
+    depends_on: [C2]
+    evidence: [E3]
+
+  - id: C7
+    type: methodological
+    statement: >
+      The approach is released as an open-source library (fastText),
+      reusable for classification and representation learning.
+    audience_floor: layperson
+    depends_on: [C2]
+    evidence: [E5]
+
+evidence:
+  - id: F1
+    kind: proof
+    protocol: >
+      Architecture: n-gram features embedded, averaged into a text
+      representation, fed to a linear classifier; softmax over labels replaced
+      by hierarchical softmax based on Huffman coding; n-gram memory bounded
+      via the hashing trick.
+    results:
+      - { metric: complexity, value: "O(h log k) vs O(kh)", provenance: as-reported }
+
+  - id: E1
+    kind: experiment
+    protocol: "Sentiment/topic classification on 8 standard datasets, comparison against char-CNN, VDCNN and other deep baselines (Table 1 of the paper)."
+    datasets:
+      - { name: "AG, Sogou, DBpedia, Yelp P., Yelp F., Yahoo A., Amazon F., Amazon P.", uri: "as distributed by Zhang et al. 2015" }
+    command: "./fasttext supervised -input train.txt -output model -wordNgrams 2"
+    results:
+      - { metric: "accuracy (bigram)", value: "AG 92.5 / Sogou 96.8 / DBpedia 98.6 / Yelp P. 95.7 / Yelp F. 63.9 / Yahoo A. 72.3 / Amazon F. 60.2 / Amazon P. 94.6", provenance: as-reported }
+      - { metric: "best deep baseline (VDCNN)", value: "AG 91.3 / Sogou 96.8 / DBpedia 98.7 / Yelp P. 95.7 / Yelp F. 64.7 / Yahoo A. 73.4 / Amazon F. 63.0 / Amazon P. 95.7", provenance: as-reported }
+
+  - id: E2
+    kind: experiment
+    protocol: "Training/inference speed measurements on standard multicore CPU vs deep baselines trained on GPU (Table 2 of the paper; abstract)."
+    results:
+      - { metric: "training throughput", value: "> 1B words in < 10 minutes, multicore CPU", provenance: as-reported }
+      - { metric: "inference", value: "500K sentences, 312K classes, < 1 minute", provenance: as-reported }
+      - { metric: "per-epoch time vs char-CNN/VDCNN", value: "seconds vs hours (exact per-dataset values in Table 2)", provenance: as-reported }
+
+  - id: E3
+    kind: experiment
+    protocol: "Tag prediction on YFCC100M captions/titles; comparison with Tagspace (Table 5 of the paper)."
+    results:
+      - { metric: "prec@1", value: 46.1, provenance: as-reported }
+      - { metric: "prec@1 (Tagspace h=200)", value: 35.6, provenance: as-reported }
+      - { metric: "training time", value: "13m38s", provenance: as-reported }
+
+  - id: E4
+    kind: external
+    protocol: "Literature at publication time: deep architectures dominant in text classification evaluations; linear baselines (McCallum & Nigam; Joachims) known strong but rarely tuned/reported."
+    results:
+      - { metric: gap-esistente, value: true, provenance: as-reported }
+
+  - id: E5
+    kind: external
+    protocol: "Public release of the fastText library."
+    results:
+      - { metric: availability, value: "github.com/facebookresearch/fastText", provenance: verified }
+
+insights:   # THIRD-PARTY: derived from the published text (see encoding.note)
+  contributions:
+    - { id: K1, statement: "A tuned linear baseline that matches deep classifiers on standard benchmarks at a fraction of the cost.", claims: [C4, C5], provenance: derived }
+    - { id: K2, statement: "Scalability mechanisms (hierarchical softmax + hashing) that make text classification practical at hundreds of thousands of classes.", claims: [C3, C6], provenance: derived }
+    - { id: K3, statement: "An open-source library that turned the baseline into common practice.", claims: [C7], provenance: derived }
+  reading:
+    - { id: R1, about: [E1], text: "The comparison the paper insists on is not accuracy alone but the accuracy/cost ratio: near-parity at orders-of-magnitude lower cost.", provenance: derived }
+  watchpoints:
+    - { id: W1, about: [C4], severity: limitation, text: "The gap vs the deepest CNNs grows on large fine-grained datasets (Yelp F., Amazon F.): parity is not universal.", provenance: derived }
+    - { id: W2, about: [C2], severity: caution, text: "Competitive accuracy requires bigram features; the unigram model alone is substantially weaker.", provenance: derived }
+    - { id: W3, about: [C3], severity: open-problem, text: "Hashing collisions on n-gram features are unquantified in the paper.", provenance: derived }
+  outlook: "Baselines of this kind should be systematically reported before adopting deeper architectures."
+
+style:
+  corpus:   # the authors' own prior work, for stylistic emulation
+    - { title: "Efficient Estimation of Word Representations in Vector Space (word2vec)", weight: 1.0 }
+    - { title: "Enriching Word Vectors with Subword Information (TACL 2017)", weight: 0.8 }
+  register:
+    person: we
+    stance: "Minimal, direct; results carry the argument; no rhetorical claims."
+  lexicon:
+    prefer: ["baseline", "efficient", "on par with", "speed-up"]
+    avoid: ["novel paradigm", "breakthrough"]
+
+figures:
+  - id: G1
+    kind: original
+    uri: "figures/fig1-model-architecture.pdf   # Figure 1 of the paper"
+    anchors: [C2]
+    audience: [student, practitioner, expert]
+    captions:
+      expert: "Model architecture: n-gram features embedded, averaged, and fed to a linear classifier with hierarchical softmax."
+      practitioner: "What the library builds internally: averaged n-gram embeddings + linear head."
+      student: "The whole model: word (and word-pair) vectors averaged into one text vector, then a linear classifier."
+    alt: "Diagram of the fastText architecture."
+    license: "© the authors; verbatim reuse in views subject to permission"
+  - id: G2
+    kind: generable
+    from: E1
+    anchors: [C4]
+    audience: [expert, practitioner]
+
+profiles:
+  - { name: reviewer,     expertise: expert,       goal: evaluate, time_budget: 10min, language: en, formalism: full }
+  - { name: practitioner, expertise: practitioner, goal: apply,    time_budget: 5min,  language: en, formalism: light }
+  - { name: student,      expertise: student,      goal: learn,    time_budget: 10min, language: en, formalism: none }
+`;
+document.getElementById("fullsrc").textContent = FULL_RIF;
+</script>
