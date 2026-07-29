@@ -1,0 +1,89 @@
+% GENERATED VIEW — not an authored document.
+% Rendered from rif://joulin-2017-fasttext (third-party encoding of Joulin et al., EACL 2017)
+% for profile (venue-paper, expertise: expert, language: en, formalism: full),
+% under the anchoring rule: every sentence is anchored to a node of the claim graph;
+% node anchors are shown as superscripts (C4 = claim, E1 = evidence, W1 = watchpoint).
+% Style: emulated from the style.yaml corpus (register: "we", minimal and direct).
+\documentclass[10pt,twocolumn]{article}
+\usepackage[letterpaper,top=1in,bottom=1in,left=0.9in,right=0.9in]{geometry}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\definecolor{anchor}{RGB}{14,110,98}
+\newcommand{\anch}[1]{\textsuperscript{\,\textcolor{anchor}{\tiny\texttt{#1}}}}
+\setlength{\columnsep}{0.28in}
+
+\title{\large\bfseries Bag of Tricks for Efficient Text Classification\\[2pt]
+\normalsize\mdseries a venue-paper view generated from \texttt{rif://joulin-2017-fasttext}}
+\author{\small [Generated view --- RIF reference rendering, profile \texttt{(venue-paper, en)}.\\
+\small Third-party encoding of Joulin, Grave, Bojanowski, Mikolov, EACL 2017. Not an authored document.]}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent We explore a simple and efficient baseline for text classification: a linear classifier over averaged bag-of-n-gram embeddings\anch{C2}. Our experiments show that this classifier, fastText, is often on par with deep learning classifiers in terms of accuracy on standard benchmarks\anch{C4}, while being many orders of magnitude faster: it trains on more than one billion words in less than ten minutes on a standard multicore CPU, and classifies half a million sentences among 312K classes in less than a minute\anch{C5}. The approach is released as an open-source library\anch{C7}.
+\end{abstract}
+
+\section{Introduction}
+Text classification is a building block of many applications, from web search to information retrieval and document ranking. At the time of this work, neural models achieved strong accuracy on these tasks, but their training and inference cost limited their use on very large corpora; linear classifiers, although known to be strong baselines when properly tuned, were under-explored in those evaluations\anch{C1}\anch{E4}. We investigate how far a simple, efficient linear baseline can go, and show that it matches deep classifiers on several standard benchmarks at a fraction of the computational cost\anch{C4}\anch{C5}.
+
+\section{Related Work}
+Linear classifiers with well-designed features have a long history of strong results in text categorisation (McCallum and Nigam, 1998; Joachims, 1998)\anch{E4}. More recently, character-level convolutional networks (Zhang et al., 2015) and very deep convolutional networks (VDCNN; Conneau et al., 2017) reported state-of-the-art accuracy on large-scale classification benchmarks, at a substantial computational cost\anch{E1}. For large-output tagging, Tagspace (Weston et al., 2014) learns embeddings of words and hashtags\anch{E3}. Our model shares its core with the CBOW architecture of word2vec (Mikolov et al., 2013), replacing the middle word with a label\anch{C2}.
+
+\section{Model}
+We represent a text as a bag of n-gram features; each feature has an embedding, the embeddings are averaged into a single text representation, and a linear classifier maps it to the labels\anch{C2}. Two components keep the model efficient at scale\anch{C3}: (i) a hierarchical softmax over the labels, based on Huffman coding, which reduces the complexity of computing the label distribution from $O(kh)$ to $O(h \log k)$, where $k$ is the number of classes and $h$ the dimension of the representation; and (ii) the hashing trick, which bounds the memory of the n-gram feature space. Word order is captured only locally, through the n-gram features themselves\anch{W2}.
+
+\section{Experiments}
+\paragraph{Sentiment and topic classification.}
+We evaluate on eight standard datasets (AG, Sogou, DBpedia, Yelp P., Yelp F., Yahoo A., Amazon F., Amazon P.), following the protocol of Zhang et al.~(2015)\anch{E1}. With bigram features, fastText reaches 92.5 (AG), 96.8 (Sogou), 98.6 (DBpedia), 95.7 (Yelp P.), 63.9 (Yelp F.), 72.3 (Yahoo A.), 60.2 (Amazon F.) and 94.6 (Amazon P.), on par with the best reported deep baselines on most datasets\anch{C4}. The deepest CNNs retain an edge on the large fine-grained datasets: VDCNN reports 64.7 on Yelp F.\ and 63.0 on Amazon F.\anch{C4}\anch{W1} All values are as reported in the encoded source\anch{E1}.
+
+\begin{table}[t]
+\centering\small
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Dataset} & \textbf{fastText (bigr.)} & \textbf{VDCNN} \\
+\midrule
+AG        & 92.5 & 91.3 \\
+Sogou     & 96.8 & 96.8 \\
+DBpedia   & 98.6 & 98.7 \\
+Yelp P.   & 95.7 & 95.7 \\
+Yelp F.   & 63.9 & 64.7 \\
+Yahoo A.  & 72.3 & 73.4 \\
+Amazon F. & 60.2 & 63.0 \\
+Amazon P. & 94.6 & 95.7 \\
+\bottomrule
+\end{tabular}
+\caption{Accuracy on the eight benchmarks (values as reported\,\textcolor{anchor}{\scriptsize\texttt{E1}}). Renderer-generated table from evidence \texttt{E1} (figure \texttt{G2}, \texttt{kind: generable}).}
+\end{table}
+
+\paragraph{Speed.}
+Training requires seconds per epoch where character-based CNNs require hours\anch{E2}; overall, fastText trains on more than one billion words in less than ten minutes on a standard multicore CPU, and evaluates half a million sentences among 312K classes in less than a minute\anch{C5}.
+
+\paragraph{Tag prediction.}
+On the YFCC100M tag-prediction task, fastText with bigrams ($h{=}200$) reaches 46.1 precision@1 against 35.6 for Tagspace ($h{=}200$), training in 13m38s\anch{C6}\anch{E3}.
+
+\section{Discussion}
+The comparison this work insists on is not accuracy alone but the accuracy/cost ratio: near-parity at orders-of-magnitude lower cost\anch{R1}. Three watchpoints qualify the results\anch{W1}\anch{W2}\anch{W3}: parity is not universal, as the gap towards the deepest CNNs grows on large fine-grained datasets\anch{W1}; competitive accuracy requires bigram features, the unigram model alone being substantially weaker\anch{W2}; and the effect of hashing collisions on the n-gram space is not quantified\anch{W3}. No claim of across-the-board state of the art is made\anch{C4}.
+
+\section{Conclusion}
+We presented a simple and efficient baseline for text classification, on par with deep classifiers on standard benchmarks and many orders of magnitude faster\anch{C4}\anch{C5}. Baselines of this kind should be systematically reported before adopting deeper architectures\anch{R1}. The implementation is available as the open-source fastText library\anch{C7}\anch{E5}.
+
+\begin{thebibliography}{9}\small
+\bibitem{zhang2015} X. Zhang, J. Zhao, Y. LeCun. 2015. Character-level Convolutional Networks for Text Classification. \emph{NeurIPS}.
+\bibitem{conneau2017} A. Conneau, H. Schwenk, L. Barrault, Y. LeCun. 2017. Very Deep Convolutional Networks for Text Classification. \emph{EACL}.
+\bibitem{weston2014} J. Weston, S. Chopra, K. Adams. 2014. \#TagSpace: Semantic Embeddings from Hashtags. \emph{EMNLP}.
+\bibitem{mikolov2013} T. Mikolov, K. Chen, G. Corrado, J. Dean. 2013. Efficient Estimation of Word Representations in Vector Space. \emph{ICLR Workshop}.
+\bibitem{joachims1998} T. Joachims. 1998. Text Categorization with Support Vector Machines. \emph{ECML}.
+\bibitem{mccallum1998} A. McCallum, K. Nigam. 1998. A Comparison of Event Models for Naive Bayes Text Classification. \emph{AAAI Workshop}.
+\end{thebibliography}
+
+\vspace{6pt}
+\noindent\rule{\columnwidth}{0.4pt}\\
+{\scriptsize This document is a \emph{generated view}: every sentence is anchored to a node of the RIF claim graph (superscripts). Watchpoints \texttt{W1--W3} are present as required by the watchpoint-invariance rule. Figure \texttt{G1} (model architecture, author-original) is omitted here because verbatim reuse requires permission; the renderer never redraws original figures. Style emulated from the \texttt{style.yaml} corpus.}
+
+\end{document}

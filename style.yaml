@@ -1,0 +1,13 @@
+# RIF v0.2 — third-party encoding of Joulin et al., EACL 2017 (fastText)
+# Part of the anonymous EACL 2027 artifact.
+
+style:
+  corpus:   # the authors' own prior work, for stylistic emulation
+    - { title: "Efficient Estimation of Word Representations in Vector Space (word2vec)", weight: 1.0 }
+    - { title: "Enriching Word Vectors with Subword Information (TACL 2017)", weight: 0.8 }
+  register:
+    person: we
+    stance: "Minimal, direct; results carry the argument; no rhetorical claims."
+  lexicon:
+    prefer: ["baseline", "efficient", "on par with", "speed-up"]
+    avoid: ["novel paradigm", "breakthrough"]

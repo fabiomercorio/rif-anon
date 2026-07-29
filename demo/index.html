@@ -160,6 +160,10 @@
       <div class="who">Student</div>
       <div class="flags"><span class="flag">student</span><span class="flag">goal:learn</span><span class="flag">10min</span><span class="flag">en</span><span class="flag">formalism:none</span></div>
     </button>
+    <button class="profile" data-p="paper" aria-pressed="false">
+      <div class="who">Venue paper — full view</div>
+      <div class="flags"><span class="flag">venue-paper</span><span class="flag">IMRaD</span><span class="flag">en</span><span class="flag">style:author-corpus</span><span class="flag">PDF in repo</span></div>
+    </button>
   </div>
 
   <div class="panes">
@@ -241,6 +245,7 @@ const PROFILES = {
   reviewer:     { rank:3, label:"expert · evaluate · en · formalism full" },
   practitioner: { rank:2, label:"practitioner · apply · en · formalism light" },
   student:      { rank:1, label:"student · learn · en · formalism none" },
+  paper:        { rank:3, label:"venue-paper · full IMRaD · en · author lexicon (also as PDF: views/paper-en.pdf)" },
 };
 const c = id => `<button class="cref" onclick="flash('${id}')">${id}</button>`;
 const e = id => `<span class="cref ev">${id}</span>`;
@@ -333,6 +338,66 @@ deep networks still win by a small margin. The lesson: always try the strong
 simple baseline first.</p></div>
 <h3>Try it ${c("C7")}</h3>
 <div class="eq">./fasttext supervised -input train.txt -output model -wordNgrams 2</div>`,
+
+paper: `
+<h2>Bag of Tricks for Efficient Text Classification</h2>
+<div class="meta">GENERATED VIEW · render(fasttext, venue-paper) · every sentence anchored ·
+style emulated from style.yaml · also compiled as PDF: views/paper-en.pdf</div>
+<h3>Abstract</h3>
+<p>We explore a simple and efficient baseline for text classification: a linear
+classifier over averaged bag-of-n-gram embeddings ${c("C2")}. Our experiments show
+that this classifier, fastText, is often on par with deep learning classifiers in
+terms of accuracy on standard benchmarks ${c("C4")}, while being many orders of
+magnitude faster: it trains on more than one billion words in less than ten minutes
+on a standard multicore CPU, and classifies half a million sentences among 312K
+classes in less than a minute ${c("C5")}. The approach is released as an open-source
+library ${c("C7")}.</p>
+<h3>1 · Introduction</h3>
+<p>Text classification is a building block of many applications, from web search to
+document ranking. At the time of this work, neural models achieved strong accuracy,
+but their training and inference cost limited their use on very large corpora;
+linear classifiers, although known to be strong baselines when properly tuned, were
+under-explored in those evaluations ${c("C1")} ${e("E4")}. We investigate how far a
+simple, efficient linear baseline can go ${c("C4")} ${c("C5")}.</p>
+<h3>2 · Related Work</h3>
+<p>Linear classifiers with well-designed features have a long history of strong
+results in text categorisation (McCallum &amp; Nigam 1998; Joachims 1998) ${e("E4")}.
+Character-level CNNs (Zhang et al. 2015) and very deep CNNs (VDCNN, Conneau et al.
+2017) reported state-of-the-art accuracy at substantial computational cost ${e("E1")}.
+For large-output tagging, Tagspace (Weston et al. 2014) learns embeddings of words
+and hashtags ${e("E3")}. Our model shares its core with the CBOW architecture of
+word2vec (Mikolov et al. 2013), replacing the middle word with a label ${c("C2")}.</p>
+<h3>3 · Model</h3>
+<p>A text is a bag of n-gram features; feature embeddings are averaged into a single
+representation, fed to a linear classifier ${c("C2")}. Two components keep the model
+efficient at scale ${c("C3")}: a hierarchical softmax over the labels (complexity
+O(kh) → O(h log k)) and the hashing trick bounding the n-gram memory. Word order is
+captured only locally, through the n-grams themselves ${c("W2")}.</p>
+<div class="figure"><span class="fbadge">G1 · author-original · omitted</span>
+The renderer never redraws original figures: verbatim reuse of Fig. 1 requires
+permission, so this view omits it rather than regenerate it. ${c("G1")}</div>
+<h3>4 · Experiments</h3>
+<p><strong>Sentiment and topic classification.</strong> On eight standard datasets,
+with bigrams: AG 92.5, Sogou 96.8, DBpedia 98.6, Yelp P. 95.7, Yelp F. 63.9,
+Yahoo A. 72.3, Amazon F. 60.2, Amazon P. 94.6 — on par with the best deep baselines
+on most datasets; VDCNN retains an edge on the large fine-grained ones (Yelp F. 64.7,
+Amazon F. 63.0) ${c("C4")} ${e("E1")} <code>as-reported</code>.</p>
+<p><strong>Speed.</strong> Seconds per epoch where character-based CNNs require
+hours; &gt;1B words trained in &lt;10 min on CPU; 500K sentences / 312K classes
+classified in &lt;1 min ${c("C5")} ${e("E2")}.</p>
+<p><strong>Tag prediction.</strong> YFCC100M: 46.1 prec@1 vs 35.6 (Tagspace h=200),
+training in 13m38s ${c("C6")} ${e("E3")}.</p>
+<h3>5 · Discussion</h3>
+<p>The comparison this work insists on is the accuracy/cost ratio: near-parity at
+orders-of-magnitude lower cost ${c("R1")}. Three watchpoints qualify the results:
+parity is not universal on large fine-grained datasets ${c("W1")}; competitive
+accuracy requires bigrams ${c("W1")}; hashing collisions are unquantified ${c("W1")}.
+No across-the-board SOTA claim is made ${c("C4")}.</p>
+<h3>6 · Conclusion</h3>
+<p>A simple, efficient baseline on par with deep classifiers and many orders of
+magnitude faster ${c("C4")} ${c("C5")}; baselines of this kind should be
+systematically reported before adopting deeper architectures ${c("R1")}. Open-source
+implementation available ${c("C7")}.</p>`,
 };
 
 function drawGraph(profile) {

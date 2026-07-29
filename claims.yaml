@@ -1,0 +1,73 @@
+# RIF v0.2 — third-party encoding of Joulin et al., EACL 2017 (fastText)
+# Part of the anonymous EACL 2027 artifact.
+
+claims:
+  - id: C1
+    type: positioning
+    statement: >
+      At the time of writing, linear/shallow baselines for text classification
+      were under-explored against increasingly complex deep models, despite
+      their known strength when properly tuned.
+    audience_floor: layperson
+    evidence: [E4]
+
+  - id: C2
+    type: methodological
+    statement: >
+      A linear classifier over averaged bag-of-n-gram embeddings (a shallow
+      architecture sharing its core with CBOW) is a viable text classifier.
+    audience_floor: student
+    depends_on: [C1]
+    evidence: [F1]
+
+  - id: C3
+    type: formal
+    statement: >
+      Hierarchical softmax over the labels reduces classification complexity
+      from O(kh) to O(h log k); the hashing trick bounds the memory of the
+      n-gram feature space.
+    audience_floor: expert
+    depends_on: [C2]
+    evidence: [F1]
+
+  - id: C4
+    type: empirical
+    statement: >
+      With bigram features, fastText is on par with deep learning classifiers
+      on standard sentiment/topic benchmarks (e.g., AG 92.5, Sogou 96.8,
+      DBpedia 98.6, Yelp P. 95.7), while remaining behind the deepest CNNs
+      on fine-grained large datasets (e.g., Amazon F. 60.2 vs 63.0 of VDCNN).
+    audience_floor: student
+    depends_on: [C2]
+    evidence: [E1]
+    non_claims:
+      - "No claim of state-of-the-art accuracy across the board: VDCNN retains an edge on several large fine-grained datasets."
+
+  - id: C5
+    type: empirical
+    statement: >
+      fastText is many orders of magnitude faster than deep classifiers:
+      it trains on more than one billion words in less than ten minutes on a
+      standard multicore CPU, and classifies half a million sentences among
+      312K classes in less than a minute.
+    audience_floor: layperson
+    depends_on: [C2, C3]
+    evidence: [E2]
+
+  - id: C6
+    type: empirical
+    statement: >
+      On YFCC100M tag prediction, fastText (h=200, bigrams) reaches 46.1
+      prec@1 against 35.6 of Tagspace (h=200), training in 13m38s.
+    audience_floor: practitioner
+    depends_on: [C2]
+    evidence: [E3]
+
+  - id: C7
+    type: methodological
+    statement: >
+      The approach is released as an open-source library (fastText),
+      reusable for classification and representation learning.
+    audience_floor: layperson
+    depends_on: [C2]
+    evidence: [E5]

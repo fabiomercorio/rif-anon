@@ -1,0 +1,51 @@
+# RIF v0.2 — third-party encoding of Joulin et al., EACL 2017 (fastText)
+# Part of the anonymous EACL 2027 artifact.
+
+evidence:
+  - id: F1
+    kind: proof
+    protocol: >
+      Architecture: n-gram features embedded, averaged into a text
+      representation, fed to a linear classifier; softmax over labels replaced
+      by hierarchical softmax based on Huffman coding; n-gram memory bounded
+      via the hashing trick.
+    results:
+      - { metric: complexity, value: "O(h log k) vs O(kh)", provenance: as-reported }
+
+  - id: E1
+    kind: experiment
+    protocol: "Sentiment/topic classification on 8 standard datasets, comparison against char-CNN, VDCNN and other deep baselines (Table 1 of the paper)."
+    datasets:
+      - { name: "AG, Sogou, DBpedia, Yelp P., Yelp F., Yahoo A., Amazon F., Amazon P.", uri: "as distributed by Zhang et al. 2015" }
+    command: "./fasttext supervised -input train.txt -output model -wordNgrams 2"
+    results:
+      - { metric: "accuracy (bigram)", value: "AG 92.5 / Sogou 96.8 / DBpedia 98.6 / Yelp P. 95.7 / Yelp F. 63.9 / Yahoo A. 72.3 / Amazon F. 60.2 / Amazon P. 94.6", provenance: as-reported }
+      - { metric: "best deep baseline (VDCNN)", value: "AG 91.3 / Sogou 96.8 / DBpedia 98.7 / Yelp P. 95.7 / Yelp F. 64.7 / Yahoo A. 73.4 / Amazon F. 63.0 / Amazon P. 95.7", provenance: as-reported }
+
+  - id: E2
+    kind: experiment
+    protocol: "Training/inference speed measurements on standard multicore CPU vs deep baselines trained on GPU (Table 2 of the paper; abstract)."
+    results:
+      - { metric: "training throughput", value: "> 1B words in < 10 minutes, multicore CPU", provenance: as-reported }
+      - { metric: "inference", value: "500K sentences, 312K classes, < 1 minute", provenance: as-reported }
+      - { metric: "per-epoch time vs char-CNN/VDCNN", value: "seconds vs hours (exact per-dataset values in Table 2)", provenance: as-reported }
+
+  - id: E3
+    kind: experiment
+    protocol: "Tag prediction on YFCC100M captions/titles; comparison with Tagspace (Table 5 of the paper)."
+    results:
+      - { metric: "prec@1", value: 46.1, provenance: as-reported }
+      - { metric: "prec@1 (Tagspace h=200)", value: 35.6, provenance: as-reported }
+      - { metric: "training time", value: "13m38s", provenance: as-reported }
+
+  - id: E4
+    kind: external
+    protocol: "Literature at publication time: deep architectures dominant in text classification evaluations; linear baselines (McCallum & Nigam; Joachims) known strong but rarely tuned/reported."
+    results:
+      - { metric: gap-esistente, value: true, provenance: as-reported }
+
+  - id: E5
+    kind: external
+    protocol: "Public release of the fastText library."
+    results:
+      - { metric: availability, value: "github.com/facebookresearch/fastText", provenance: verified }

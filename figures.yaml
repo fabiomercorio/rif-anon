@@ -1,0 +1,20 @@
+# RIF v0.2 — third-party encoding of Joulin et al., EACL 2017 (fastText)
+# Part of the anonymous EACL 2027 artifact.
+
+figures:
+  - id: G1
+    kind: original
+    uri: "figures/fig1-model-architecture.pdf   # Figure 1 of the paper"
+    anchors: [C2]
+    audience: [student, practitioner, expert]
+    captions:
+      expert: "Model architecture: n-gram features embedded, averaged, and fed to a linear classifier with hierarchical softmax."
+      practitioner: "What the library builds internally: averaged n-gram embeddings + linear head."
+      student: "The whole model: word (and word-pair) vectors averaged into one text vector, then a linear classifier."
+    alt: "Diagram of the fastText architecture."
+    license: "© the authors; verbatim reuse in views subject to permission"
+  - id: G2
+    kind: generable
+    from: E1
+    anchors: [C4]
+    audience: [expert, practitioner]

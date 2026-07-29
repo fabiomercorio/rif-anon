@@ -1,0 +1,15 @@
+# RIF v0.2 — third-party encoding of Joulin et al., EACL 2017 (fastText)
+# Part of the anonymous EACL 2027 artifact.
+
+insights:   # THIRD-PARTY: derived from the published text (see encoding.note)
+  contributions:
+    - { id: K1, statement: "A tuned linear baseline that matches deep classifiers on standard benchmarks at a fraction of the cost.", claims: [C4, C5], provenance: derived }
+    - { id: K2, statement: "Scalability mechanisms (hierarchical softmax + hashing) that make text classification practical at hundreds of thousands of classes.", claims: [C3, C6], provenance: derived }
+    - { id: K3, statement: "An open-source library that turned the baseline into common practice.", claims: [C7], provenance: derived }
+  reading:
+    - { id: R1, about: [E1], text: "The comparison the paper insists on is not accuracy alone but the accuracy/cost ratio: near-parity at orders-of-magnitude lower cost.", provenance: derived }
+  watchpoints:
+    - { id: W1, about: [C4], severity: limitation, text: "The gap vs the deepest CNNs grows on large fine-grained datasets (Yelp F., Amazon F.): parity is not universal.", provenance: derived }
+    - { id: W2, about: [C2], severity: caution, text: "Competitive accuracy requires bigram features; the unigram model alone is substantially weaker.", provenance: derived }
+    - { id: W3, about: [C3], severity: open-problem, text: "Hashing collisions on n-gram features are unquantified in the paper.", provenance: derived }
+  outlook: "Baselines of this kind should be systematically reported before adopting deeper architectures."

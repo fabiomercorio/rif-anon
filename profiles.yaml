@@ -1,0 +1,7 @@
+# RIF v0.2 — third-party encoding of Joulin et al., EACL 2017 (fastText)
+# Part of the anonymous EACL 2027 artifact.
+
+profiles:
+  - { name: reviewer,     expertise: expert,       goal: evaluate, time_budget: 10min, language: en, formalism: full }
+  - { name: practitioner, expertise: practitioner, goal: apply,    time_budget: 5min,  language: en, formalism: light }
+  - { name: student,      expertise: student,      goal: learn,    time_budget: 10min, language: en, formalism: none }
