@@ -120,7 +120,7 @@ Related work is a set of typed, resolvable nodes - not a prose section:
 
 ```yaml
 references:
-  - id: R2
+  - id: B2
     resolve: { arxiv: "1606.01781" }   # levels: rif:// (claim-level, best) |
     label: "Conneau et al. (2017), VDCNN, EACL"   #   doi/arxiv/openalex | bibtex (fallback)
     role: baseline        # baseline | method-source | dataset-source | positioning

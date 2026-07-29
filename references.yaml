@@ -11,43 +11,43 @@
 # in the citation style of the target venue.
 
 references:
-  - id: R1
+  - id: B1
     resolve: { arxiv: "1509.01626" }
     label: "Zhang, Zhao & LeCun (2015), Character-level Convolutional Networks for Text Classification, NeurIPS"
     role: baseline          # baseline | method-source | dataset-source | positioning
     anchored_by: [C1, C4, E1]
 
-  - id: R2
+  - id: B2
     resolve: { arxiv: "1606.01781" }
     label: "Conneau et al. (2017), Very Deep Convolutional Networks for Text Classification (VDCNN), EACL"
     role: baseline
     anchored_by: [C4, E1]
 
-  - id: R3
+  - id: B3
     resolve: { doi: "10.3115/v1/D14-1194" }
     label: "Weston, Chopra & Adams (2014), #TagSpace: Semantic Embeddings from Hashtags, EMNLP"
     role: baseline
     anchored_by: [C6, E3]
 
-  - id: R4
+  - id: B4
     resolve: { arxiv: "1301.3781" }
     label: "Mikolov et al. (2013), Efficient Estimation of Word Representations in Vector Space (CBOW)"
     role: method-source     # the model shares its core with CBOW
     anchored_by: [C2]
 
-  - id: R5
+  - id: B5
     resolve: { bibtex: "@inproceedings{joachims1998, author={Joachims, Thorsten}, title={Text Categorization with Support Vector Machines}, booktitle={ECML}, year={1998}}" }
     label: "Joachims (1998), ECML"
     role: positioning       # linear classifiers as historically strong baselines
     anchored_by: [C1, E4]
 
-  - id: R6
+  - id: B6
     resolve: { bibtex: "@inproceedings{mccallum1998, author={McCallum, Andrew and Nigam, Kamal}, title={A Comparison of Event Models for Naive Bayes Text Classification}, booktitle={AAAI Workshop on Learning for Text Categorization}, year={1998}}" }
     label: "McCallum & Nigam (1998)"
     role: positioning
     anchored_by: [C1, E4]
 
   # Example of the highest resolution level (target repo does not exist yet):
-  # - id: R7
+  # - id: B7
   #   resolve: { rif: "rif://zhang-2015-charcnn/C2" }   # claim-level cross-repo edge
   #   role: baseline

@@ -124,6 +124,20 @@
   .cref.ev { background: var(--evid-bg); color: var(--evid); }
   .hint { font-size: .76rem; color: var(--ink-soft); margin-top: 10px; }
 
+  .genlabel { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .64rem;
+    background: var(--claim-bg); color: var(--claim); border-radius: 4px; padding: 2px 7px;
+    display: inline-block; margin-bottom: 6px; }
+  table.gentab { border-collapse: collapse; font-size: .82rem; margin: 6px 0 4px;
+    font-variant-numeric: tabular-nums; }
+  table.gentab th, table.gentab td { border-bottom: 1px solid var(--line);
+    padding: 3px 12px 3px 0; text-align: left; }
+  table.gentab th { font-size: .7rem; text-transform: uppercase; letter-spacing: .06em;
+    color: var(--ink-soft); font-weight: 600; }
+  table.gentab td.num { text-align: right; }
+  table.gentab tr.win td { color: var(--claim); font-weight: 600; }
+  .bib { border-top: 1px solid var(--line); margin-top: 18px; padding-top: 10px; }
+  .bib ol { padding-left: 18px; margin: 6px 0 0; font-size: .82rem; }
+  .bib li { margin-bottom: 4px; max-width: 66ch; }
   details.src { margin-top: 30px; border: 1px solid var(--line); border-radius: 10px;
     background: var(--panel); }
   details.src summary { cursor: pointer; padding: 14px 18px; font-weight: 650;
@@ -142,7 +156,7 @@
     <p class="thesis">A published EACL paper — <em>Bag of Tricks for Efficient Text
     Classification</em> (fastText, Joulin et al., EACL 2017) — encoded as a RIF
     repository (claim graph, evidence with provenance, derived insights, style,
-    figures) and rendered for three different readers. Pick a profile: the
+    figures, references, datasets) and rendered for different readers. Pick a profile: the
     "paper" is recompiled.</p>
     <div class="pipeline">RIF repo ── <b>render(graph, profile)</b> ──▶ a view for the reader</div>
   </header>
@@ -196,8 +210,20 @@
           <p class="stmt">Model architecture (Fig. 1 of the paper), author-original: inserted <em>verbatim</em> in views, with per-audience captions.</p>
           <div class="links"><span class="dlink">→ C2</span></div></div>
         <div class="node voice" id="node-G2"><div class="node-head"><span class="cid">G2</span><span class="ctype">figure · generable</span></div>
-          <p class="stmt">Accuracy chart: the renderer may draw it from E1, labelled as renderer-generated.</p>
+          <p class="stmt">Accuracy chart/table: the renderer may draw it from E1, labelled as renderer-generated.</p>
           <div class="links"><span class="elink">E1</span></div></div>
+      </div>
+
+      <p class="pane-label" style="margin-top:22px">Source · references.yaml + datasets.yaml — resolve, don't host</p>
+      <div class="graph">
+        <div class="node voice" id="node-B1"><div class="node-head"><span class="cid">B1–B6</span><span class="ctype">references · resolvable</span></div>
+          <p class="stmt">B1 Zhang et al. '15 (arxiv:1509.01626, baseline) · B2 VDCNN '17 (arxiv:1606.01781, baseline) · B3 TagSpace '14 (doi:10.3115/v1/D14-1194) · B4 word2vec '13 (method-source) · B5 Joachims '98 · B6 McCallum &amp; Nigam '98 (bibtex inline, positioning).</p>
+          <div class="links"><span class="dlink">→ C1 C2 C4 C6</span><span class="elink">E1 E3 E4</span></div>
+          <p class="stmt" style="margin-top:6px;font-size:.74rem;color:var(--ink-soft)"><em>The bibliography of each view below is a <b>derived artifact</b>: generated from the reference nodes that view anchors.</em></p></div>
+        <div class="node voice" id="node-D1"><div class="node-head"><span class="cid">D1–D9</span><span class="ctype">datasets · first-class nodes</span></div>
+          <p class="stmt">D1 ag_news · D2 sogou_news · D3 dbpedia_14 · D4 yelp_polarity · D5 yelp_review_full · D6 yahoo_answers_topics (gated) · D7 amazon_review_full · D8 amazon_polarity — resolve: hf. D9 YFCC100M — resolve: doi:10.1145/2812802 (gated). Each with version · checksum · license · access.</p>
+          <div class="links"><span class="elink">E1</span><span class="elink">E3</span></div>
+          <p class="stmt" style="margin-top:6px;font-size:.74rem;color:var(--ink-soft)"><em>Version + checksum are the identity that lets re-execution promote <code>as-reported</code> → <code>verified</code>.</em></p></div>
       </div>
     </section>
 
@@ -211,7 +237,7 @@
   </div>
 
   <details class="src">
-    <summary>Full RIF source · paper.rif.yaml (complete, third-party encoding of Joulin et al. 2017)</summary>
+    <summary>Full RIF source · all files (manifest, claims, experiments, insights, style, figures, references, datasets, profiles)</summary>
     <pre id="fullsrc"></pre>
   </details>
 </div>
@@ -261,20 +287,33 @@ enabling 312K-class classification; (iii) an open-source library ${c("K1")}.
 <em>Derived from the published text — third-party encoding.</em></p>
 <h3>Method ${c("C2")} → ${c("C3")}</h3>
 <p>N-gram features are embedded, averaged into a text representation and fed to a
-linear classifier ${c("C2")} ${e("F1")}. The softmax over k labels is replaced by a
-hierarchical softmax:</p>
+linear classifier ${c("C2")} ${e("F1")}, minimising the negative log-likelihood
+over the N documents:</p>
+<div class="eq">min  −(1/N) Σₙ  yₙ · log( f(B·A·xₙ) )      // xₙ bag of n-grams, A lookup, B linear, f softmax ${' '}[F1]</div>
+<p>The softmax over k labels is replaced by a hierarchical softmax ${c("C3")}:</p>
 <div class="eq">complexity: O(kh) → O(h log k);  n-gram memory bounded by the hashing trick</div>
 <div class="figure"><span class="fbadge">G1 · author-original · verbatim</span>
 figures/fig1-model-architecture.pdf
 <div class="fcap">Model architecture: n-gram features embedded, averaged, and fed to a
 linear classifier with hierarchical softmax. ${c("G1")}</div></div>
 <h3>Evaluation — what to scrutinise ${c("C4")}, ${c("C5")}, ${c("C6")}</h3>
+<span class="genlabel">table generated by the renderer from ${e("E1")} · figure G2, kind: generable</span>
+<table class="gentab">
+<tr><th>dataset</th><th>node</th><th>fastText (bigr.)</th><th>VDCNN</th></tr>
+<tr class="win"><td>AG News</td><td>D1</td><td class="num">92.5</td><td class="num">91.3</td></tr>
+<tr><td>Sogou</td><td>D2</td><td class="num">96.8</td><td class="num">96.8</td></tr>
+<tr><td>DBpedia</td><td>D3</td><td class="num">98.6</td><td class="num">98.7</td></tr>
+<tr><td>Yelp P.</td><td>D4</td><td class="num">95.7</td><td class="num">95.7</td></tr>
+<tr><td>Yelp F.</td><td>D5</td><td class="num">63.9</td><td class="num">64.7</td></tr>
+<tr><td>Yahoo A.</td><td>D6</td><td class="num">72.3</td><td class="num">73.4</td></tr>
+<tr><td>Amazon F.</td><td>D7</td><td class="num">60.2</td><td class="num">63.0</td></tr>
+<tr><td>Amazon P.</td><td>D8</td><td class="num">94.6</td><td class="num">95.7</td></tr>
+</table>
 <ul>
-<li>8 benchmarks: with bigrams, AG 92.5 / Sogou 96.8 / DBpedia 98.6 / Yelp P. 95.7;
-VDCNN retains the edge on Yelp F. (64.7 vs 63.9) and Amazon F. (63.0 vs 60.2)
-${e("E1")} <code>as-reported</code>.</li>
+<li>Datasets resolved via <code>datasets.yaml</code> (hf: ag_news, dbpedia_14, ...) with
+version, checksum, license, access ${c("D1")}.</li>
 <li>Speed: >1B words in <10 min, CPU; 500K sentences / 312K classes in <1 min ${e("E2")}.</li>
-<li>YFCC100M: 46.1 prec@1 vs 35.6 (Tagspace h=200), 13m38s training ${e("E3")}.</li>
+<li>YFCC100M (D9, gated): 46.1 prec@1 vs 35.6 (Tagspace h=200), 13m38s training ${e("E3")}.</li>
 <li>Explicit non-claim: no across-the-board SOTA ${c("C4")}.</li>
 </ul>
 <div class="author"><span class="atag">✎ insights · derived (third-party encoding)</span>
@@ -284,7 +323,16 @@ accuracy alone: near-parity at orders-of-magnitude lower cost.</p>
 datasets · W2 — bigrams are necessary for competitive accuracy · W3 (open) — hashing
 collisions unquantified.</p></div>
 <h3>Reusability ${c("C7")}</h3>
-<p>Open-source library ${e("E5")} <code>verified</code>.</p>`,
+<p>Open-source library ${e("E5")} <code>verified</code>.</p>
+<div class="bib"><span class="genlabel">derived bibliography — generated from the reference nodes anchored in this view</span>
+<ol>
+<li>Zhang, Zhao &amp; LeCun (2015). Character-level Convolutional Networks for Text Classification. NeurIPS. <code>arxiv:1509.01626</code> ${c("B1")}</li>
+<li>Conneau et al. (2017). Very Deep Convolutional Networks for Text Classification. EACL. <code>arxiv:1606.01781</code> ${c("B1")}</li>
+<li>Weston, Chopra &amp; Adams (2014). #TagSpace: Semantic Embeddings from Hashtags. EMNLP. <code>doi:10.3115/v1/D14-1194</code> ${c("B1")}</li>
+<li>Mikolov et al. (2013). Efficient Estimation of Word Representations in Vector Space. <code>arxiv:1301.3781</code> ${c("B1")}</li>
+<li>Joachims (1998). Text Categorization with Support Vector Machines. ECML. <code>bibtex</code> ${c("B1")}</li>
+<li>McCallum &amp; Nigam (1998). A Comparison of Event Models for Naive Bayes Text Classification. <code>bibtex</code> ${c("B1")}</li>
+</ol></div>`,
 
 practitioner: `
 <h2>You need a text classifier that trains in seconds</h2>
@@ -303,7 +351,15 @@ figures/fig1-model-architecture.pdf
 linear head. ${c("G1")}</div></div>
 <h3>What to expect ${c("C4")}, ${c("C6")}</h3>
 <p>On standard benchmarks it is on par with deep classifiers (AG 92.5, DBpedia 98.6)
-${e("E1")}; for many-label tagging it beat Tagspace by ~10 points prec@1 ${e("E3")}.</p>
+${e("E1")}; for many-label tagging it beat Tagspace by ~10 points prec@1 ${e("E3")}.
+The exact benchmark datasets are one command away — they resolve to Hugging Face ids
+(<code>ag_news</code>, <code>dbpedia_14</code>, <code>yelp_polarity</code>, ...)
+with license and access level declared per node ${c("D1")}.</p>
+<div class="bib"><span class="genlabel">derived bibliography — 2 nodes anchored by this view</span>
+<ol>
+<li>Zhang, Zhao &amp; LeCun (2015). Character-level Convolutional Networks. NeurIPS. <code>arxiv:1509.01626</code> ${c("B1")}</li>
+<li>Weston, Chopra &amp; Adams (2014). #TagSpace. EMNLP. <code>doi:10.3115/v1/D14-1194</code> ${c("B1")}</li>
+</ol></div>
 <div class="author"><span class="atag">✎ insights · derived (third-party encoding)</span>
 <p><strong>${c("W1")}</strong> On large fine-grained datasets (5-star Yelp/Amazon) the
 deepest CNNs still win by 1–3 points — if those points matter to you, budget for them.
@@ -330,14 +386,27 @@ figures/fig1-model-architecture.pdf
 linear classifier. ${c("G1")}</div></div>
 <h3>Does it work? ${c("C4")}, ${c("C5")}</h3>
 <p>On the standard benchmarks of the time it matches deep networks almost everywhere
-${e("E1")} — while training in seconds instead of hours, on a normal CPU ${e("E2")}.</p>
+${e("E1")} — while training in seconds instead of hours, on a normal CPU ${e("E2")}.
+A taste of the numbers (accuracy, %):</p>
+<span class="genlabel">table generated by the renderer from ${e("E1")} — simplified for this profile</span>
+<table class="gentab">
+<tr><th>task</th><th>fastText</th><th>best deep network</th></tr>
+<tr class="win"><td>News topics (AG)</td><td class="num">92.5</td><td class="num">91.3</td></tr>
+<tr><td>Wikipedia categories (DBpedia)</td><td class="num">98.6</td><td class="num">98.7</td></tr>
+<tr><td>5-star reviews (Amazon)</td><td class="num">60.2</td><td class="num">63.0</td></tr>
+</table>
 <div class="author"><span class="atag">✎ insights · derived (third-party encoding)</span>
 <p>Two honest caveats to remember ${c("W1")}: the simplest version (single words
 only) is weaker — the word-pair features matter; and on the hardest datasets the
 deep networks still win by a small margin. The lesson: always try the strong
 simple baseline first.</p></div>
 <h3>Try it ${c("C7")}</h3>
-<div class="eq">./fasttext supervised -input train.txt -output model -wordNgrams 2</div>`,
+<div class="eq">./fasttext supervised -input train.txt -output model -wordNgrams 2</div>
+<div class="bib"><span class="genlabel">to go deeper — derived reading list</span>
+<ol>
+<li>Zhang, Zhao &amp; LeCun (2015) — the deep networks this paper competes with ${c("B1")}</li>
+<li>Mikolov et al. (2013) — word2vec, where the averaged-vectors idea comes from ${c("B1")}</li>
+</ol></div>`,
 
 paper: `
 <h2>Bag of Tricks for Efficient Text Classification</h2>
@@ -369,19 +438,35 @@ and hashtags ${e("E3")}. Our model shares its core with the CBOW architecture of
 word2vec (Mikolov et al. 2013), replacing the middle word with a label ${c("C2")}.</p>
 <h3>3 · Model</h3>
 <p>A text is a bag of n-gram features; feature embeddings are averaged into a single
-representation, fed to a linear classifier ${c("C2")}. Two components keep the model
-efficient at scale ${c("C3")}: a hierarchical softmax over the labels (complexity
-O(kh) → O(h log k)) and the hashing trick bounding the n-gram memory. Word order is
-captured only locally, through the n-grams themselves ${c("W2")}.</p>
+representation, fed to a linear classifier ${c("C2")} that minimises the negative
+log-likelihood over the N documents ${e("F1")}:</p>
+<div class="eq">min  −(1/N) Σₙ  yₙ · log( f(B·A·xₙ) )    // xₙ bag of n-grams, A lookup, B linear, f softmax</div>
+<p>Two components keep the model efficient at scale ${c("C3")}: a hierarchical
+softmax over the labels, reducing complexity from O(kh) to O(h log k), and the
+hashing trick bounding the n-gram memory. Word order is captured only locally,
+through the n-grams themselves ${c("W1")}.</p>
 <div class="figure"><span class="fbadge">G1 · author-original · omitted</span>
 The renderer never redraws original figures: verbatim reuse of Fig. 1 requires
 permission, so this view omits it rather than regenerate it. ${c("G1")}</div>
 <h3>4 · Experiments</h3>
-<p><strong>Sentiment and topic classification.</strong> On eight standard datasets,
-with bigrams: AG 92.5, Sogou 96.8, DBpedia 98.6, Yelp P. 95.7, Yelp F. 63.9,
-Yahoo A. 72.3, Amazon F. 60.2, Amazon P. 94.6 — on par with the best deep baselines
-on most datasets; VDCNN retains an edge on the large fine-grained ones (Yelp F. 64.7,
-Amazon F. 63.0) ${c("C4")} ${e("E1")} <code>as-reported</code>.</p>
+<p><strong>Sentiment and topic classification.</strong> We evaluate on eight standard
+datasets, resolved as first-class nodes (D1–D8, Hugging Face ids in
+<code>datasets.yaml</code>) ${c("D1")}, following the protocol of Zhang et al. (2015)
+${c("B1")}. With bigrams, fastText is on par with the best deep baselines on most
+datasets; VDCNN retains an edge on the large fine-grained ones ${c("C4")} ${e("E1")}
+<code>as-reported</code>:</p>
+<span class="genlabel">Table 1 — generated by the renderer from ${e("E1")} (figure G2, kind: generable)</span>
+<table class="gentab">
+<tr><th>dataset</th><th>fastText (bigr.)</th><th>VDCNN</th></tr>
+<tr class="win"><td>AG News (D1)</td><td class="num">92.5</td><td class="num">91.3</td></tr>
+<tr><td>Sogou (D2)</td><td class="num">96.8</td><td class="num">96.8</td></tr>
+<tr><td>DBpedia (D3)</td><td class="num">98.6</td><td class="num">98.7</td></tr>
+<tr><td>Yelp P. (D4)</td><td class="num">95.7</td><td class="num">95.7</td></tr>
+<tr><td>Yelp F. (D5)</td><td class="num">63.9</td><td class="num">64.7</td></tr>
+<tr><td>Yahoo A. (D6)</td><td class="num">72.3</td><td class="num">73.4</td></tr>
+<tr><td>Amazon F. (D7)</td><td class="num">60.2</td><td class="num">63.0</td></tr>
+<tr><td>Amazon P. (D8)</td><td class="num">94.6</td><td class="num">95.7</td></tr>
+</table>
 <p><strong>Speed.</strong> Seconds per epoch where character-based CNNs require
 hours; &gt;1B words trained in &lt;10 min on CPU; 500K sentences / 312K classes
 classified in &lt;1 min ${c("C5")} ${e("E2")}.</p>
@@ -397,7 +482,16 @@ No across-the-board SOTA claim is made ${c("C4")}.</p>
 <p>A simple, efficient baseline on par with deep classifiers and many orders of
 magnitude faster ${c("C4")} ${c("C5")}; baselines of this kind should be
 systematically reported before adopting deeper architectures ${c("R1")}. Open-source
-implementation available ${c("C7")}.</p>`,
+implementation available ${c("C7")}.</p>
+<div class="bib"><span class="genlabel">References — derived bibliography, generated from the nodes anchored in this view (B1–B6)</span>
+<ol>
+<li>X. Zhang, J. Zhao, Y. LeCun. 2015. Character-level Convolutional Networks for Text Classification. <em>NeurIPS</em>. <code>arxiv:1509.01626</code> ${c("B1")}</li>
+<li>A. Conneau, H. Schwenk, L. Barrault, Y. LeCun. 2017. Very Deep Convolutional Networks for Text Classification. <em>EACL</em>. <code>arxiv:1606.01781</code> ${c("B1")}</li>
+<li>J. Weston, S. Chopra, K. Adams. 2014. #TagSpace: Semantic Embeddings from Hashtags. <em>EMNLP</em>. <code>doi:10.3115/v1/D14-1194</code> ${c("B1")}</li>
+<li>T. Mikolov, K. Chen, G. Corrado, J. Dean. 2013. Efficient Estimation of Word Representations in Vector Space. <code>arxiv:1301.3781</code> ${c("B1")}</li>
+<li>T. Joachims. 1998. Text Categorization with Support Vector Machines. <em>ECML</em>. <code>bibtex inline</code> ${c("B1")}</li>
+<li>A. McCallum, K. Nigam. 1998. A Comparison of Event Models for Naive Bayes Text Classification. <em>AAAI Workshop</em>. <code>bibtex inline</code> ${c("B1")}</li>
+</ol></div>`,
 };
 
 function drawGraph(profile) {
@@ -435,12 +529,10 @@ document.querySelectorAll(".profile").forEach(b =>
 setProfile("reviewer");
 </script>
 <script>
-const FULL_RIF = `# RIF v0.2 encoding of:
-# Joulin, Grave, Bojanowski, Mikolov,
-# "Bag of Tricks for Efficient Text Classification", EACL 2017.
-# THIRD-PARTY ENCODING: produced from the published text, not by the authors.
-# All results carry provenance "as-reported" (from the paper's tables);
-# insights are marked "derived" (inferred from the published text, NOT authorial voice).
+const FULL_RIF = `# ══════════ paper.rif.yaml ══════════
+
+# RIF v0.2 — third-party encoding of Joulin et al., EACL 2017 (fastText)
+# Part of the anonymous EACL 2027 artifact.
 
 rif_version: "0.2"
 
@@ -465,6 +557,23 @@ work:
     - { venue: "arXiv:1607.01759", year: 2016 }
   artifacts:
     - { kind: code, uri: "https://github.com/facebookresearch/fastText" }
+
+includes:
+  claims: claims.yaml
+  evidence: experiments.yaml
+  references: references.yaml   # related work, resolvable (rif:// | doi | arxiv | bibtex)
+  datasets: datasets.yaml       # first-class dataset nodes (resolve, don't host)
+  insights: insights.yaml
+  style: style.yaml
+  figures: figures.yaml
+  profiles: profiles.yaml
+  views: views/          # rendered views (venue paper PDF included)
+
+
+# ══════════ claims.yaml ══════════
+
+# RIF v0.2 — third-party encoding of Joulin et al., EACL 2017 (fastText)
+# Part of the anonymous EACL 2027 artifact.
 
 claims:
   - id: C1
@@ -537,6 +646,12 @@ claims:
     depends_on: [C2]
     evidence: [E5]
 
+
+# ══════════ experiments.yaml ══════════
+
+# RIF v0.2 — third-party encoding of Joulin et al., EACL 2017 (fastText)
+# Part of the anonymous EACL 2027 artifact.
+
 evidence:
   - id: F1
     kind: proof
@@ -551,8 +666,7 @@ evidence:
   - id: E1
     kind: experiment
     protocol: "Sentiment/topic classification on 8 standard datasets, comparison against char-CNN, VDCNN and other deep baselines (Table 1 of the paper)."
-    datasets:
-      - { name: "AG, Sogou, DBpedia, Yelp P., Yelp F., Yahoo A., Amazon F., Amazon P.", uri: "as distributed by Zhang et al. 2015" }
+    datasets: [D1, D2, D3, D4, D5, D6, D7, D8]   # -> datasets.yaml
     command: "./fasttext supervised -input train.txt -output model -wordNgrams 2"
     results:
       - { metric: "accuracy (bigram)", value: "AG 92.5 / Sogou 96.8 / DBpedia 98.6 / Yelp P. 95.7 / Yelp F. 63.9 / Yahoo A. 72.3 / Amazon F. 60.2 / Amazon P. 94.6", provenance: as-reported }
@@ -569,6 +683,7 @@ evidence:
   - id: E3
     kind: experiment
     protocol: "Tag prediction on YFCC100M captions/titles; comparison with Tagspace (Table 5 of the paper)."
+    datasets: [D9]   # -> datasets.yaml
     results:
       - { metric: "prec@1", value: 46.1, provenance: as-reported }
       - { metric: "prec@1 (Tagspace h=200)", value: 35.6, provenance: as-reported }
@@ -586,6 +701,12 @@ evidence:
     results:
       - { metric: availability, value: "github.com/facebookresearch/fastText", provenance: verified }
 
+
+# ══════════ insights.yaml ══════════
+
+# RIF v0.2 — third-party encoding of Joulin et al., EACL 2017 (fastText)
+# Part of the anonymous EACL 2027 artifact.
+
 insights:   # THIRD-PARTY: derived from the published text (see encoding.note)
   contributions:
     - { id: K1, statement: "A tuned linear baseline that matches deep classifiers on standard benchmarks at a fraction of the cost.", claims: [C4, C5], provenance: derived }
@@ -599,6 +720,12 @@ insights:   # THIRD-PARTY: derived from the published text (see encoding.note)
     - { id: W3, about: [C3], severity: open-problem, text: "Hashing collisions on n-gram features are unquantified in the paper.", provenance: derived }
   outlook: "Baselines of this kind should be systematically reported before adopting deeper architectures."
 
+
+# ══════════ style.yaml ══════════
+
+# RIF v0.2 — third-party encoding of Joulin et al., EACL 2017 (fastText)
+# Part of the anonymous EACL 2027 artifact.
+
 style:
   corpus:   # the authors' own prior work, for stylistic emulation
     - { title: "Efficient Estimation of Word Representations in Vector Space (word2vec)", weight: 1.0 }
@@ -609,6 +736,12 @@ style:
   lexicon:
     prefer: ["baseline", "efficient", "on par with", "speed-up"]
     avoid: ["novel paradigm", "breakthrough"]
+
+
+# ══════════ figures.yaml ══════════
+
+# RIF v0.2 — third-party encoding of Joulin et al., EACL 2017 (fastText)
+# Part of the anonymous EACL 2027 artifact.
 
 figures:
   - id: G1
@@ -627,6 +760,157 @@ figures:
     from: E1
     anchors: [C4]
     audience: [expert, practitioner]
+
+
+# ══════════ references.yaml ══════════
+
+# RIF v0.2 — third-party encoding of Joulin et al., EACL 2017 (fastText)
+# Part of the anonymous EACL 2027 artifact.
+#
+# references.yaml — related work as typed, resolvable nodes ("resolve, don't host").
+# Resolution levels, best to fallback:
+#   rif:      claim-level anchor into another RIF repository (full interoperability)
+#   doi/arxiv/openalex: document-level identifier, resolved via Crossref/DataCite/OpenAlex
+#   bibtex:   inline entry, last resort for grey literature
+# The bibliography of any rendered view is a DERIVED artifact: the renderer
+# generates it from the reference nodes actually anchored in that view,
+# in the citation style of the target venue.
+
+references:
+  - id: B1
+    resolve: { arxiv: "1509.01626" }
+    label: "Zhang, Zhao & LeCun (2015), Character-level Convolutional Networks for Text Classification, NeurIPS"
+    role: baseline          # baseline | method-source | dataset-source | positioning
+    anchored_by: [C1, C4, E1]
+
+  - id: B2
+    resolve: { arxiv: "1606.01781" }
+    label: "Conneau et al. (2017), Very Deep Convolutional Networks for Text Classification (VDCNN), EACL"
+    role: baseline
+    anchored_by: [C4, E1]
+
+  - id: B3
+    resolve: { doi: "10.3115/v1/D14-1194" }
+    label: "Weston, Chopra & Adams (2014), #TagSpace: Semantic Embeddings from Hashtags, EMNLP"
+    role: baseline
+    anchored_by: [C6, E3]
+
+  - id: B4
+    resolve: { arxiv: "1301.3781" }
+    label: "Mikolov et al. (2013), Efficient Estimation of Word Representations in Vector Space (CBOW)"
+    role: method-source     # the model shares its core with CBOW
+    anchored_by: [C2]
+
+  - id: B5
+    resolve: { bibtex: "@inproceedings{joachims1998, author={Joachims, Thorsten}, title={Text Categorization with Support Vector Machines}, booktitle={ECML}, year={1998}}" }
+    label: "Joachims (1998), ECML"
+    role: positioning       # linear classifiers as historically strong baselines
+    anchored_by: [C1, E4]
+
+  - id: B6
+    resolve: { bibtex: "@inproceedings{mccallum1998, author={McCallum, Andrew and Nigam, Kamal}, title={A Comparison of Event Models for Naive Bayes Text Classification}, booktitle={AAAI Workshop on Learning for Text Categorization}, year={1998}}" }
+    label: "McCallum & Nigam (1998)"
+    role: positioning
+    anchored_by: [C1, E4]
+
+  # Example of the highest resolution level (target repo does not exist yet):
+  # - id: B7
+  #   resolve: { rif: "rif://zhang-2015-charcnn/C2" }   # claim-level cross-repo edge
+  #   role: baseline
+
+
+# ══════════ datasets.yaml ══════════
+
+# RIF v0.2 — third-party encoding of Joulin et al., EACL 2017 (fastText)
+# Part of the anonymous EACL 2027 artifact.
+#
+# datasets.yaml — datasets as first-class nodes ("resolve, don't host").
+# Each node resolves to an existing repository (Hugging Face, DataCite/Zenodo,
+# OpenML, or a stable URI) and carries version, checksum, license and access:
+# the stable identity that re-execution needs to promote as-reported -> verified.
+# checksum: TODO entries are honest gaps of this third-party encoding - the
+# original paper predates dataset registries; an author encoding (or the CI)
+# fills them at first verification.
+
+datasets:
+  - id: D1
+    name: "AG News"
+    resolve: { hf: "ag_news" }
+    version: "as distributed by Zhang et al. 2015 (R1)"
+    checksum: "TODO@first-verification"
+    license: "non-commercial research use"
+    access: open
+    role: eval
+  - id: D2
+    name: "Sogou News"
+    resolve: { hf: "sogou_news" }
+    version: "as distributed by Zhang et al. 2015 (R1)"
+    checksum: "TODO@first-verification"
+    license: "research use"
+    access: open
+    role: eval
+  - id: D3
+    name: "DBpedia ontology classification"
+    resolve: { hf: "dbpedia_14" }
+    version: "as distributed by Zhang et al. 2015 (R1)"
+    checksum: "TODO@first-verification"
+    license: "CC-BY-SA (DBpedia)"
+    access: open
+    role: eval
+  - id: D4
+    name: "Yelp Review Polarity"
+    resolve: { hf: "yelp_polarity" }
+    version: "as distributed by Zhang et al. 2015 (R1)"
+    checksum: "TODO@first-verification"
+    license: "Yelp Dataset Agreement"
+    access: open
+    role: eval
+  - id: D5
+    name: "Yelp Review Full"
+    resolve: { hf: "yelp_review_full" }
+    version: "as distributed by Zhang et al. 2015 (R1)"
+    checksum: "TODO@first-verification"
+    license: "Yelp Dataset Agreement"
+    access: open
+    role: eval
+  - id: D6
+    name: "Yahoo! Answers Topics"
+    resolve: { hf: "yahoo_answers_topics" }
+    version: "as distributed by Zhang et al. 2015 (R1)"
+    checksum: "TODO@first-verification"
+    license: "Yahoo Webscope terms"
+    access: gated
+    role: eval
+  - id: D7
+    name: "Amazon Review Full"
+    resolve: { hf: "amazon_review_full" }
+    version: "as distributed by Zhang et al. 2015 (R1)"
+    checksum: "TODO@first-verification"
+    license: "research use"
+    access: open
+    role: eval
+  - id: D8
+    name: "Amazon Review Polarity"
+    resolve: { hf: "amazon_polarity" }
+    version: "as distributed by Zhang et al. 2015 (R1)"
+    checksum: "TODO@first-verification"
+    license: "research use"
+    access: open
+    role: eval
+  - id: D9
+    name: "YFCC100M (titles and captions subset)"
+    resolve: { doi: "10.1145/2812802" }   # Thomee et al. 2016, CACM - dataset paper
+    version: "subset described in Sec. 5 of the encoded paper"
+    checksum: "TODO@first-verification"
+    license: "CC (per-item, mixed)"
+    access: gated
+    role: eval
+
+
+# ══════════ profiles.yaml ══════════
+
+# RIF v0.2 — third-party encoding of Joulin et al., EACL 2017 (fastText)
+# Part of the anonymous EACL 2027 artifact.
 
 profiles:
   - { name: reviewer,     expertise: expert,       goal: evaluate, time_budget: 10min, language: en, formalism: full }
