@@ -1,4 +1,4 @@
-<title>RIF · The Paper Is a View — fastText demo</title>
+<title>RIF · Bag of Tricks for Efficient Text Classification — rendered views</title>
 <style>
   :root {
     --paper: #FAFAF7; --ink: #16211F; --ink-soft: #5C6B68;
@@ -124,6 +124,23 @@
   .cref.ev { background: var(--evid-bg); color: var(--evid); }
   .hint { font-size: .76rem; color: var(--ink-soft); margin-top: 10px; }
 
+  .legend { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px;
+    margin-bottom: 16px; background: var(--panel); }
+  .leg-grid { display: grid; grid-template-columns: 1fr; gap: 4px; font-size: .78rem; }
+  .leg-grid b { font-family: ui-monospace, "SF Mono", Menlo, monospace; border-radius: 4px;
+    padding: 0 6px; margin-right: 4px; }
+  .lg-c { color: var(--claim); background: var(--claim-bg); }
+  .lg-e { color: var(--evid); background: var(--evid-bg); }
+  .t-chip { padding: 1px 6px; border-radius: 4px; }
+  .t-empirical { color: var(--claim); background: var(--claim-bg); }
+  .t-formal { color: var(--evid); background: var(--evid-bg); }
+  .t-methodological { color: var(--ink-soft); border: 1px solid var(--line); }
+  .t-positioning { color: var(--ink-soft); }
+  .node.ev { border-left-color: var(--evid); }
+  .node.ev .cid { color: var(--evid); }
+  button.dlink, button.elink { cursor: pointer; border: none; font: inherit; }
+  button.dlink:hover, button.elink:hover { text-decoration: underline; }
+  .schem { display: block; margin: 8px auto 0; max-width: 340px; width: 100%; color: var(--ink-soft); }
   .genlabel { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .64rem;
     background: var(--claim-bg); color: var(--claim); border-radius: 4px; padding: 2px 7px;
     display: inline-block; margin-bottom: 6px; }
@@ -152,12 +169,11 @@
 <div class="wrap">
   <header>
     <div class="eyebrow">RIF · Research Interchange Framework — prototype (anonymous)</div>
-    <h1>The paper is a view, not an artifact</h1>
-    <p class="thesis">A published EACL paper — <em>Bag of Tricks for Efficient Text
-    Classification</em> (fastText, Joulin et al., EACL 2017) — encoded as a RIF
-    repository (claim graph, evidence with provenance, derived insights, style,
-    figures, references, datasets) and rendered for different readers. Pick a profile: the
-    "paper" is recompiled.</p>
+    <h1>Bag of Tricks for Efficient Text Classification</h1>
+    <p class="thesis">Joulin, Grave, Bojanowski &amp; Mikolov, EACL 2017 (fastText) —
+    encoded as a RIF repository: claim graph, evidence with provenance, derived
+    insights, style, figures, references and datasets. Pick a reader profile:
+    the paper is recompiled.</p>
     <div class="pipeline">RIF repo ── <b>render(graph, profile)</b> ──▶ a view for the reader</div>
   </header>
 
@@ -182,11 +198,42 @@
 
   <div class="panes">
     <section aria-label="RIF source">
+      <div class="legend">
+        <p class="pane-label" style="margin:0 0 8px">Legend · node types</p>
+        <div class="leg-grid">
+          <span><b class="lg-c">C</b> <strong>claim</strong> — a falsifiable statement, the atomic unit</span>
+          <span><b class="lg-e">F</b> <strong>formal evidence</strong> — definition, equation or proof</span>
+          <span><b class="lg-e">E</b> <strong>empirical evidence</strong> — experiment, user study, external fact</span>
+          <span><b class="lg-e">K</b> <strong>contribution</strong> · <b class="lg-e">R</b> <strong>author's reading</strong> · <b class="lg-e">W</b> <strong>watchpoint</strong> (insights; W survives in every view)</span>
+          <span><b class="lg-c">B</b> <strong>reference</strong> — resolvable citation (rif:// | doi | arxiv | bibtex)</span>
+          <span><b class="lg-c">D</b> <strong>dataset</strong> — resolvable data node (hf | doi | openml)</span>
+          <span><b class="lg-e">G</b> <strong>figure</strong> — original (verbatim) or generable (renderer-drawn)</span>
+        </div>
+        <p class="hint" style="margin-top:8px">Every chip in the views (e.g. C4, E1, W2) is clickable and highlights its source node here.</p>
+      </div>
       <p class="pane-label">Source · claims.yaml</p>
       <div class="graph" id="graph"></div>
       <p class="hint">Dashed nodes are <em>compiled away</em> for the active profile
       (below their <code>audience_floor</code>): their content is served through
       narrative paraphrase.</p>
+
+      <p class="pane-label" style="margin-top:22px">Source · experiments.yaml — evidence</p>
+      <div class="graph">
+        <div class="node ev" id="node-F1"><div class="node-head"><span class="cid">F1</span><span class="ctype">proof / formalisation</span></div>
+          <p class="stmt">Architecture: n-gram embeddings averaged → linear classifier; hierarchical softmax O(kh) → O(h log k); hashing trick bounds n-gram memory.</p></div>
+        <div class="node ev" id="node-E1"><div class="node-head"><span class="cid">E1</span><span class="ctype">experiment · as-reported</span></div>
+          <p class="stmt">Sentiment/topic classification on 8 benchmarks (Table 1): fastText bigram vs char-CNN and VDCNN accuracies.</p>
+          <div class="links"><button class="dlink" onclick="flash('D1')">D1–D8</button></div></div>
+        <div class="node ev" id="node-E2"><div class="node-head"><span class="cid">E2</span><span class="ctype">experiment · as-reported</span></div>
+          <p class="stmt">Speed (Table 2): 1s–10s per epoch vs 24m–7h (VDCNN) and 1h–5d (char-CNN); &gt;1B words in &lt;10 min on CPU; 500K sentences / 312K classes in &lt;1 min.</p></div>
+        <div class="node ev" id="node-E3"><div class="node-head"><span class="cid">E3</span><span class="ctype">experiment · as-reported</span></div>
+          <p class="stmt">YFCC100M tag prediction (Table 5): prec@1 46.1 (h=200, bigram) vs 35.6 Tagspace; train 13m38 vs 5h32.</p>
+          <div class="links"><button class="dlink" onclick="flash('D1')">D9</button></div></div>
+        <div class="node ev" id="node-E4"><div class="node-head"><span class="cid">E4</span><span class="ctype">external</span></div>
+          <p class="stmt">Literature at publication time: deep models dominant in evaluations; linear baselines known strong but rarely tuned/reported.</p></div>
+        <div class="node ev" id="node-E5"><div class="node-head"><span class="cid">E5</span><span class="ctype">external · verified</span></div>
+          <p class="stmt">Public release: github.com/facebookresearch/fastText.</p></div>
+      </div>
 
       <p class="pane-label" style="margin-top:22px">Source · insights.yaml — derived (third-party encoding)</p>
       <div class="graph">
@@ -292,10 +339,23 @@ over the N documents:</p>
 <div class="eq">min  −(1/N) Σₙ  yₙ · log( f(B·A·xₙ) )      // xₙ bag of n-grams, A lookup, B linear, f softmax ${' '}[F1]</div>
 <p>The softmax over k labels is replaced by a hierarchical softmax ${c("C3")}:</p>
 <div class="eq">complexity: O(kh) → O(h log k);  n-gram memory bounded by the hashing trick</div>
-<div class="figure"><span class="fbadge">G1 · author-original · verbatim</span>
-figures/fig1-model-architecture.pdf
-<div class="fcap">Model architecture: n-gram features embedded, averaged, and fed to a
-linear classifier with hierarchical softmax. ${c("G1")}</div></div>
+<div class="figure"><span class="fbadge">G1 · renderer-generated schematic — original Fig. 1 omitted (verbatim-only rule)</span>
+<svg class="schem" viewBox="0 0 340 120" role="img" aria-label="fastText architecture schematic">
+<g fill="none" stroke="currentColor" stroke-width="1">
+<rect x="12" y="88" width="48" height="20" rx="3"/><rect x="70" y="88" width="48" height="20" rx="3"/><rect x="186" y="88" width="48" height="20" rx="3"/><rect x="244" y="88" width="48" height="20" rx="3"/>
+<rect x="70" y="46" width="164" height="18" rx="3"/>
+<rect x="112" y="8" width="80" height="18" rx="3"/>
+<line x1="36" y1="88" x2="140" y2="64"/><line x1="94" y1="88" x2="148" y2="64"/><line x1="210" y1="88" x2="160" y2="64"/><line x1="268" y1="88" x2="168" y2="64"/>
+<line x1="152" y1="46" x2="152" y2="26"/>
+</g>
+<g font-family="ui-monospace,monospace" font-size="10" fill="currentColor">
+<text x="26" y="101">x1</text><text x="84" y="101">x2</text><text x="146" y="101">...</text><text x="200" y="101">xN-1</text><text x="260" y="101">xN</text>
+<text x="122" y="59">hidden (mean)</text>
+<text x="130" y="21">output</text>
+</g>
+</svg>
+<div class="fcap">Model architecture: N n-gram features embedded and averaged into the
+hidden variable, then a linear output with hierarchical softmax. ${c("G1")}</div></div>
 <h3>Evaluation — what to scrutinise ${c("C4")}, ${c("C5")}, ${c("C6")}</h3>
 <span class="genlabel">table generated by the renderer from ${e("E1")} · figure G2, kind: generable</span>
 <table class="gentab">
@@ -327,11 +387,11 @@ collisions unquantified.</p></div>
 <div class="bib"><span class="genlabel">derived bibliography — generated from the reference nodes anchored in this view</span>
 <ol>
 <li>Zhang, Zhao &amp; LeCun (2015). Character-level Convolutional Networks for Text Classification. NeurIPS. <code>arxiv:1509.01626</code> ${c("B1")}</li>
-<li>Conneau et al. (2017). Very Deep Convolutional Networks for Text Classification. EACL. <code>arxiv:1606.01781</code> ${c("B1")}</li>
-<li>Weston, Chopra &amp; Adams (2014). #TagSpace: Semantic Embeddings from Hashtags. EMNLP. <code>doi:10.3115/v1/D14-1194</code> ${c("B1")}</li>
-<li>Mikolov et al. (2013). Efficient Estimation of Word Representations in Vector Space. <code>arxiv:1301.3781</code> ${c("B1")}</li>
-<li>Joachims (1998). Text Categorization with Support Vector Machines. ECML. <code>bibtex</code> ${c("B1")}</li>
-<li>McCallum &amp; Nigam (1998). A Comparison of Event Models for Naive Bayes Text Classification. <code>bibtex</code> ${c("B1")}</li>
+<li>Conneau et al. (2017). Very Deep Convolutional Networks for Text Classification. EACL. <code>arxiv:1606.01781</code> ${c("B2")}</li>
+<li>Weston, Chopra &amp; Adams (2014). #TagSpace: Semantic Embeddings from Hashtags. EMNLP. <code>doi:10.3115/v1/D14-1194</code> ${c("B3")}</li>
+<li>Mikolov et al. (2013). Efficient Estimation of Word Representations in Vector Space. <code>arxiv:1301.3781</code> ${c("B4")}</li>
+<li>Joachims (1998). Text Categorization with Support Vector Machines. ECML. <code>bibtex</code> ${c("B5")}</li>
+<li>McCallum &amp; Nigam (1998). A Comparison of Event Models for Naive Bayes Text Classification. <code>bibtex</code> ${c("B6")}</li>
 </ol></div>`,
 
 practitioner: `
@@ -345,8 +405,21 @@ billion words in under ten minutes — and classifies half a million sentences a
 <div class="eq">./fasttext supervised -input train.txt -output model -wordNgrams 2</div>
 <p>Open-source ${e("E5")}. Use <code>-wordNgrams 2</code>: bigram features are what
 makes accuracy competitive ${c("W1")}.</p>
-<div class="figure"><span class="fbadge">G1 · author-original · verbatim</span>
-figures/fig1-model-architecture.pdf
+<div class="figure"><span class="fbadge">G1 · renderer-generated schematic</span>
+<svg class="schem" viewBox="0 0 340 120" role="img" aria-label="fastText architecture schematic">
+<g fill="none" stroke="currentColor" stroke-width="1">
+<rect x="12" y="88" width="48" height="20" rx="3"/><rect x="70" y="88" width="48" height="20" rx="3"/><rect x="186" y="88" width="48" height="20" rx="3"/><rect x="244" y="88" width="48" height="20" rx="3"/>
+<rect x="70" y="46" width="164" height="18" rx="3"/>
+<rect x="112" y="8" width="80" height="18" rx="3"/>
+<line x1="36" y1="88" x2="140" y2="64"/><line x1="94" y1="88" x2="148" y2="64"/><line x1="210" y1="88" x2="160" y2="64"/><line x1="268" y1="88" x2="168" y2="64"/>
+<line x1="152" y1="46" x2="152" y2="26"/>
+</g>
+<g font-family="ui-monospace,monospace" font-size="10" fill="currentColor">
+<text x="26" y="101">x1</text><text x="84" y="101">x2</text><text x="146" y="101">...</text><text x="200" y="101">xN-1</text><text x="260" y="101">xN</text>
+<text x="122" y="59">hidden (mean)</text>
+<text x="130" y="21">output</text>
+</g>
+</svg>
 <div class="fcap">What the library builds internally: averaged n-gram embeddings +
 linear head. ${c("G1")}</div></div>
 <h3>What to expect ${c("C4")}, ${c("C6")}</h3>
@@ -358,7 +431,7 @@ with license and access level declared per node ${c("D1")}.</p>
 <div class="bib"><span class="genlabel">derived bibliography — 2 nodes anchored by this view</span>
 <ol>
 <li>Zhang, Zhao &amp; LeCun (2015). Character-level Convolutional Networks. NeurIPS. <code>arxiv:1509.01626</code> ${c("B1")}</li>
-<li>Weston, Chopra &amp; Adams (2014). #TagSpace. EMNLP. <code>doi:10.3115/v1/D14-1194</code> ${c("B1")}</li>
+<li>Weston, Chopra &amp; Adams (2014). #TagSpace. EMNLP. <code>doi:10.3115/v1/D14-1194</code> ${c("B3")}</li>
 </ol></div>
 <div class="author"><span class="atag">✎ insights · derived (third-party encoding)</span>
 <p><strong>${c("W1")}</strong> On large fine-grained datasets (5-star Yelp/Amazon) the
@@ -380,10 +453,23 @@ classes — no depth ${c("C2")}.</p>
 <p><strong>3 · Scale.</strong> Two tricks keep it fast even with hundreds of
 thousands of classes: labels are organised in a tree, and rare word-pairs share
 memory ${c("C3")}.</p>
-<div class="figure"><span class="fbadge">G1 · original figure by the authors</span>
-figures/fig1-model-architecture.pdf
-<div class="fcap">The whole model: word vectors averaged into one text vector, then a
-linear classifier. ${c("G1")}</div></div>
+<div class="figure"><span class="fbadge">G1 · renderer-generated schematic</span>
+<svg class="schem" viewBox="0 0 340 120" role="img" aria-label="fastText architecture schematic">
+<g fill="none" stroke="currentColor" stroke-width="1">
+<rect x="12" y="88" width="48" height="20" rx="3"/><rect x="70" y="88" width="48" height="20" rx="3"/><rect x="186" y="88" width="48" height="20" rx="3"/><rect x="244" y="88" width="48" height="20" rx="3"/>
+<rect x="70" y="46" width="164" height="18" rx="3"/>
+<rect x="112" y="8" width="80" height="18" rx="3"/>
+<line x1="36" y1="88" x2="140" y2="64"/><line x1="94" y1="88" x2="148" y2="64"/><line x1="210" y1="88" x2="160" y2="64"/><line x1="268" y1="88" x2="168" y2="64"/>
+<line x1="152" y1="46" x2="152" y2="26"/>
+</g>
+<g font-family="ui-monospace,monospace" font-size="10" fill="currentColor">
+<text x="26" y="101">x1</text><text x="84" y="101">x2</text><text x="146" y="101">...</text><text x="200" y="101">xN-1</text><text x="260" y="101">xN</text>
+<text x="122" y="59">hidden (mean)</text>
+<text x="130" y="21">output</text>
+</g>
+</svg>
+<div class="fcap">The whole model: word (and word-pair) vectors averaged into one text
+vector, then a linear classifier. ${c("G1")}</div></div>
 <h3>Does it work? ${c("C4")}, ${c("C5")}</h3>
 <p>On the standard benchmarks of the time it matches deep networks almost everywhere
 ${e("E1")} — while training in seconds instead of hours, on a normal CPU ${e("E2")}.
@@ -405,7 +491,7 @@ simple baseline first.</p></div>
 <div class="bib"><span class="genlabel">to go deeper — derived reading list</span>
 <ol>
 <li>Zhang, Zhao &amp; LeCun (2015) — the deep networks this paper competes with ${c("B1")}</li>
-<li>Mikolov et al. (2013) — word2vec, where the averaged-vectors idea comes from ${c("B1")}</li>
+<li>Mikolov et al. (2013) — word2vec, where the averaged-vectors idea comes from ${c("B4")}</li>
 </ol></div>`,
 
 paper: `
@@ -440,14 +526,28 @@ word2vec (Mikolov et al. 2013), replacing the middle word with a label ${c("C2")
 <p>A text is a bag of n-gram features; feature embeddings are averaged into a single
 representation, fed to a linear classifier ${c("C2")} that minimises the negative
 log-likelihood over the N documents ${e("F1")}:</p>
-<div class="eq">min  −(1/N) Σₙ  yₙ · log( f(B·A·xₙ) )    // xₙ bag of n-grams, A lookup, B linear, f softmax</div>
+<div class="eq">−(1/N) Σₙ₌₁..N  yₙ log( f(B A xₙ) )    // xₙ normalized bag of features, yₙ label, A lookup, B linear, f softmax</div>
 <p>Two components keep the model efficient at scale ${c("C3")}: a hierarchical
 softmax over the labels, reducing complexity from O(kh) to O(h log k), and the
 hashing trick bounding the n-gram memory. Word order is captured only locally,
 through the n-grams themselves ${c("W1")}.</p>
-<div class="figure"><span class="fbadge">G1 · author-original · omitted</span>
-The renderer never redraws original figures: verbatim reuse of Fig. 1 requires
-permission, so this view omits it rather than regenerate it. ${c("G1")}</div>
+<div class="figure"><span class="fbadge">G1 · renderer-generated schematic — original Fig. 1 omitted (verbatim-only rule)</span>
+<svg class="schem" viewBox="0 0 340 120" role="img" aria-label="fastText architecture schematic">
+<g fill="none" stroke="currentColor" stroke-width="1">
+<rect x="12" y="88" width="48" height="20" rx="3"/><rect x="70" y="88" width="48" height="20" rx="3"/><rect x="186" y="88" width="48" height="20" rx="3"/><rect x="244" y="88" width="48" height="20" rx="3"/>
+<rect x="70" y="46" width="164" height="18" rx="3"/>
+<rect x="112" y="8" width="80" height="18" rx="3"/>
+<line x1="36" y1="88" x2="140" y2="64"/><line x1="94" y1="88" x2="148" y2="64"/><line x1="210" y1="88" x2="160" y2="64"/><line x1="268" y1="88" x2="168" y2="64"/>
+<line x1="152" y1="46" x2="152" y2="26"/>
+</g>
+<g font-family="ui-monospace,monospace" font-size="10" fill="currentColor">
+<text x="26" y="101">x1</text><text x="84" y="101">x2</text><text x="146" y="101">...</text><text x="200" y="101">xN-1</text><text x="260" y="101">xN</text>
+<text x="122" y="59">hidden (mean)</text>
+<text x="130" y="21">output</text>
+</g>
+</svg>
+<div class="fcap">Figure 1: model architecture for a sentence with N n-gram features;
+features are embedded and averaged to form the hidden variable. ${c("G1")}</div></div>
 <h3>4 · Experiments</h3>
 <p><strong>Sentiment and topic classification.</strong> We evaluate on eight standard
 datasets, resolved as first-class nodes (D1–D8, Hugging Face ids in
@@ -467,11 +567,30 @@ datasets; VDCNN retains an edge on the large fine-grained ones ${c("C4")} ${e("E
 <tr><td>Amazon F. (D7)</td><td class="num">60.2</td><td class="num">63.0</td></tr>
 <tr><td>Amazon P. (D8)</td><td class="num">94.6</td><td class="num">95.7</td></tr>
 </table>
-<p><strong>Speed.</strong> Seconds per epoch where character-based CNNs require
-hours; &gt;1B words trained in &lt;10 min on CPU; 500K sentences / 312K classes
-classified in &lt;1 min ${c("C5")} ${e("E2")}.</p>
-<p><strong>Tag prediction.</strong> YFCC100M: 46.1 prec@1 vs 35.6 (Tagspace h=200),
-training in 13m38s ${c("C6")} ${e("E3")}.</p>
+<p><strong>Speed.</strong> fastText trains in seconds per epoch where character-based
+CNNs require hours or days ${c("C5")} ${e("E2")}:</p>
+<span class="genlabel">Table 2 — training time per epoch, generated from ${e("E2")}</span>
+<table class="gentab">
+<tr><th>dataset</th><th>small char-CNN</th><th>VDCNN (d29)</th><th>fastText (h=10, bigr.)</th></tr>
+<tr><td>AG</td><td class="num">1h</td><td class="num">51m</td><td class="num"><b>1s</b></td></tr>
+<tr><td>DBpedia</td><td class="num">2h</td><td class="num">1h</td><td class="num"><b>2s</b></td></tr>
+<tr><td>Yelp F.</td><td class="num">—</td><td class="num">1h12</td><td class="num"><b>4s</b></td></tr>
+<tr><td>Yahoo A.</td><td class="num">8h</td><td class="num">2h</td><td class="num"><b>5s</b></td></tr>
+<tr><td>Amazon F.</td><td class="num">2d</td><td class="num">7h</td><td class="num"><b>9s</b></td></tr>
+<tr><td>Amazon P.</td><td class="num">2d</td><td class="num">7h</td><td class="num"><b>10s</b></td></tr>
+</table>
+<p>Overall, &gt;1B words trained in &lt;10 min on a multicore CPU; 500K sentences /
+312K classes classified in &lt;1 min ${c("C5")} ${e("E2")}.</p>
+<p><strong>Tag prediction.</strong> On YFCC100M (D9), fastText outperforms Tagspace
+while training in minutes instead of hours ${c("C6")} ${e("E3")}:</p>
+<span class="genlabel">Table 5 — prec@1 and running time, generated from ${e("E3")}</span>
+<table class="gentab">
+<tr><th>model</th><th>prec@1</th><th>train</th><th>test</th></tr>
+<tr><td>Freq. baseline</td><td class="num">2.2</td><td class="num">—</td><td class="num">—</td></tr>
+<tr><td>Tagspace, h=200</td><td class="num">35.6</td><td class="num">5h32</td><td class="num">15h</td></tr>
+<tr><td>fastText, h=200</td><td class="num">41.1</td><td class="num">10m34</td><td class="num">1m29</td></tr>
+<tr class="win"><td>fastText, h=200, bigram</td><td class="num">46.1</td><td class="num">13m38</td><td class="num">1m37</td></tr>
+</table>
 <h3>5 · Discussion</h3>
 <p>The comparison this work insists on is the accuracy/cost ratio: near-parity at
 orders-of-magnitude lower cost ${c("R1")}. Three watchpoints qualify the results:
@@ -486,11 +605,11 @@ implementation available ${c("C7")}.</p>
 <div class="bib"><span class="genlabel">References — derived bibliography, generated from the nodes anchored in this view (B1–B6)</span>
 <ol>
 <li>X. Zhang, J. Zhao, Y. LeCun. 2015. Character-level Convolutional Networks for Text Classification. <em>NeurIPS</em>. <code>arxiv:1509.01626</code> ${c("B1")}</li>
-<li>A. Conneau, H. Schwenk, L. Barrault, Y. LeCun. 2017. Very Deep Convolutional Networks for Text Classification. <em>EACL</em>. <code>arxiv:1606.01781</code> ${c("B1")}</li>
-<li>J. Weston, S. Chopra, K. Adams. 2014. #TagSpace: Semantic Embeddings from Hashtags. <em>EMNLP</em>. <code>doi:10.3115/v1/D14-1194</code> ${c("B1")}</li>
-<li>T. Mikolov, K. Chen, G. Corrado, J. Dean. 2013. Efficient Estimation of Word Representations in Vector Space. <code>arxiv:1301.3781</code> ${c("B1")}</li>
-<li>T. Joachims. 1998. Text Categorization with Support Vector Machines. <em>ECML</em>. <code>bibtex inline</code> ${c("B1")}</li>
-<li>A. McCallum, K. Nigam. 1998. A Comparison of Event Models for Naive Bayes Text Classification. <em>AAAI Workshop</em>. <code>bibtex inline</code> ${c("B1")}</li>
+<li>A. Conneau, H. Schwenk, L. Barrault, Y. LeCun. 2017. Very Deep Convolutional Networks for Text Classification. <em>EACL</em>. <code>arxiv:1606.01781</code> ${c("B2")}</li>
+<li>J. Weston, S. Chopra, K. Adams. 2014. #TagSpace: Semantic Embeddings from Hashtags. <em>EMNLP</em>. <code>doi:10.3115/v1/D14-1194</code> ${c("B3")}</li>
+<li>T. Mikolov, K. Chen, G. Corrado, J. Dean. 2013. Efficient Estimation of Word Representations in Vector Space. <code>arxiv:1301.3781</code> ${c("B4")}</li>
+<li>T. Joachims. 1998. Text Categorization with Support Vector Machines. <em>ECML</em>. <code>bibtex inline</code> ${c("B5")}</li>
+<li>A. McCallum, K. Nigam. 1998. A Comparison of Event Models for Naive Bayes Text Classification. <em>AAAI Workshop</em>. <code>bibtex inline</code> ${c("B6")}</li>
 </ol></div>`,
 };
 
@@ -500,11 +619,11 @@ function drawGraph(profile) {
     const out = FLOOR_RANK[cl.floor] > rank;
     return `<div class="node ${out ? "compiled-out" : ""}" id="node-${cl.id}">
       <div class="node-head"><span class="cid">${cl.id}</span>
-        <span class="ctype">${cl.type}</span>
+        <span class="ctype t-chip t-${cl.type}">${cl.type}</span>
         <span class="floor">floor:${cl.floor}</span></div>
       <p class="stmt">${cl.stmt}</p>
-      <div class="links">${cl.dep.map(d => `<span class="dlink">← ${d}</span>`).join("")}
-        ${cl.ev.map(ev => `<span class="elink">${ev}</span>`).join("")}</div>
+      <div class="links">${cl.dep.map(d => `<button class="dlink" onclick="flash('${d}')">← ${d}</button>`).join("")}
+        ${cl.ev.map(ev => `<button class="elink" onclick="flash('${ev}')">${ev}</button>`).join("")}</div>
       ${cl.non ? `<div class="nonclaim">${cl.non}</div>` : ""}
       <div class="compiled-note">// compiled away: below audience_floor → narrative paraphrase</div>
     </div>`;
@@ -518,7 +637,12 @@ function setProfile(p) {
   drawGraph(p);
 }
 function flash(id) {
-  const n = document.getElementById("node-" + id);
+  let n = document.getElementById("node-" + id);
+  if (!n) {
+    const groups = { B: "B1", D: "D1", K: "K1", R: "R1", W: "W1" };
+    const g = groups[id[0]];
+    if (g) n = document.getElementById("node-" + g);
+  }
   if (!n) return;
   n.scrollIntoView({ behavior: "smooth", block: "center" });
   n.classList.add("flash");
@@ -678,16 +802,19 @@ evidence:
     results:
       - { metric: "training throughput", value: "> 1B words in < 10 minutes, multicore CPU", provenance: as-reported }
       - { metric: "inference", value: "500K sentences, 312K classes, < 1 minute", provenance: as-reported }
-      - { metric: "per-epoch time vs char-CNN/VDCNN", value: "seconds vs hours (exact per-dataset values in Table 2)", provenance: as-reported }
+      - { metric: "per-epoch training time (Table 2, fastText h=10 bigram)", value: "AG 1s / Sogou 7s / DBpedia 2s / Yelp P. 3s / Yelp F. 4s / Yahoo A. 5s / Amazon F. 9s / Amazon P. 10s", provenance: as-reported }
+      - { metric: "per-epoch training time (Table 2, baselines)", value: "small char-CNN 1h-2d / big char-CNN 3h-5d / VDCNN d29 51m-7h", provenance: as-reported }
 
   - id: E3
     kind: experiment
     protocol: "Tag prediction on YFCC100M captions/titles; comparison with Tagspace (Table 5 of the paper)."
     datasets: [D9]   # -> datasets.yaml
-    results:
-      - { metric: "prec@1", value: 46.1, provenance: as-reported }
-      - { metric: "prec@1 (Tagspace h=200)", value: 35.6, provenance: as-reported }
-      - { metric: "training time", value: "13m38s", provenance: as-reported }
+    results:   # Table 5: prec@1 + running time (train / test, 20 threads train, 1 thread test)
+      - { metric: "prec@1 (freq. baseline)", value: 2.2, provenance: as-reported }
+      - { metric: "prec@1 (Tagspace h=50)", value: 30.1, provenance: as-reported, note: "train 3h8, test 6h" }
+      - { metric: "prec@1 (Tagspace h=200)", value: 35.6, provenance: as-reported, note: "train 5h32, test 15h" }
+      - { metric: "prec@1 (fastText h=200)", value: 41.1, provenance: as-reported, note: "train 10m34, test 1m29" }
+      - { metric: "prec@1 (fastText h=200, bigram)", value: 46.1, provenance: as-reported, note: "train 13m38, test 1m37" }
 
   - id: E4
     kind: external

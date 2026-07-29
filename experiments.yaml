@@ -27,16 +27,19 @@ evidence:
     results:
       - { metric: "training throughput", value: "> 1B words in < 10 minutes, multicore CPU", provenance: as-reported }
       - { metric: "inference", value: "500K sentences, 312K classes, < 1 minute", provenance: as-reported }
-      - { metric: "per-epoch time vs char-CNN/VDCNN", value: "seconds vs hours (exact per-dataset values in Table 2)", provenance: as-reported }
+      - { metric: "per-epoch training time (Table 2, fastText h=10 bigram)", value: "AG 1s / Sogou 7s / DBpedia 2s / Yelp P. 3s / Yelp F. 4s / Yahoo A. 5s / Amazon F. 9s / Amazon P. 10s", provenance: as-reported }
+      - { metric: "per-epoch training time (Table 2, baselines)", value: "small char-CNN 1h-2d / big char-CNN 3h-5d / VDCNN d29 51m-7h", provenance: as-reported }
 
   - id: E3
     kind: experiment
     protocol: "Tag prediction on YFCC100M captions/titles; comparison with Tagspace (Table 5 of the paper)."
     datasets: [D9]   # -> datasets.yaml
-    results:
-      - { metric: "prec@1", value: 46.1, provenance: as-reported }
-      - { metric: "prec@1 (Tagspace h=200)", value: 35.6, provenance: as-reported }
-      - { metric: "training time", value: "13m38s", provenance: as-reported }
+    results:   # Table 5: prec@1 + running time (train / test, 20 threads train, 1 thread test)
+      - { metric: "prec@1 (freq. baseline)", value: 2.2, provenance: as-reported }
+      - { metric: "prec@1 (Tagspace h=50)", value: 30.1, provenance: as-reported, note: "train 3h8, test 6h" }
+      - { metric: "prec@1 (Tagspace h=200)", value: 35.6, provenance: as-reported, note: "train 5h32, test 15h" }
+      - { metric: "prec@1 (fastText h=200)", value: 41.1, provenance: as-reported, note: "train 10m34, test 1m29" }
+      - { metric: "prec@1 (fastText h=200, bigram)", value: 46.1, provenance: as-reported, note: "train 13m38, test 1m37" }
 
   - id: E4
     kind: external
