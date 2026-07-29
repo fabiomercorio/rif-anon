@@ -1,4 +1,4 @@
-# RIF — Research Interchange Format v0.2 (compact specification)
+# RIF — Research Interchange Framework v0.2 (compact specification)
 
 *A git-native format in which the repository is the research and the paper is a view.*
 
