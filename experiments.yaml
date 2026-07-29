@@ -15,8 +15,7 @@ evidence:
   - id: E1
     kind: experiment
     protocol: "Sentiment/topic classification on 8 standard datasets, comparison against char-CNN, VDCNN and other deep baselines (Table 1 of the paper)."
-    datasets:
-      - { name: "AG, Sogou, DBpedia, Yelp P., Yelp F., Yahoo A., Amazon F., Amazon P.", uri: "as distributed by Zhang et al. 2015" }
+    datasets: [D1, D2, D3, D4, D5, D6, D7, D8]   # -> datasets.yaml
     command: "./fasttext supervised -input train.txt -output model -wordNgrams 2"
     results:
       - { metric: "accuracy (bigram)", value: "AG 92.5 / Sogou 96.8 / DBpedia 98.6 / Yelp P. 95.7 / Yelp F. 63.9 / Yahoo A. 72.3 / Amazon F. 60.2 / Amazon P. 94.6", provenance: as-reported }
@@ -33,6 +32,7 @@ evidence:
   - id: E3
     kind: experiment
     protocol: "Tag prediction on YFCC100M captions/titles; comparison with Tagspace (Table 5 of the paper)."
+    datasets: [D9]   # -> datasets.yaml
     results:
       - { metric: "prec@1", value: 46.1, provenance: as-reported }
       - { metric: "prec@1 (Tagspace h=200)", value: 35.6, provenance: as-reported }

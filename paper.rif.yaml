@@ -28,6 +28,8 @@ work:
 includes:
   claims: claims.yaml
   evidence: experiments.yaml
+  references: references.yaml   # related work, resolvable (rif:// | doi | arxiv | bibtex)
+  datasets: datasets.yaml       # first-class dataset nodes (resolve, don't host)
   insights: insights.yaml
   style: style.yaml
   figures: figures.yaml

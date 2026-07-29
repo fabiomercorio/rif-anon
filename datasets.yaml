@@ -1,0 +1,84 @@
+# RIF v0.2 — third-party encoding of Joulin et al., EACL 2017 (fastText)
+# Part of the anonymous EACL 2027 artifact.
+#
+# datasets.yaml — datasets as first-class nodes ("resolve, don't host").
+# Each node resolves to an existing repository (Hugging Face, DataCite/Zenodo,
+# OpenML, or a stable URI) and carries version, checksum, license and access:
+# the stable identity that re-execution needs to promote as-reported -> verified.
+# checksum: TODO entries are honest gaps of this third-party encoding - the
+# original paper predates dataset registries; an author encoding (or the CI)
+# fills them at first verification.
+
+datasets:
+  - id: D1
+    name: "AG News"
+    resolve: { hf: "ag_news" }
+    version: "as distributed by Zhang et al. 2015 (R1)"
+    checksum: "TODO@first-verification"
+    license: "non-commercial research use"
+    access: open
+    role: eval
+  - id: D2
+    name: "Sogou News"
+    resolve: { hf: "sogou_news" }
+    version: "as distributed by Zhang et al. 2015 (R1)"
+    checksum: "TODO@first-verification"
+    license: "research use"
+    access: open
+    role: eval
+  - id: D3
+    name: "DBpedia ontology classification"
+    resolve: { hf: "dbpedia_14" }
+    version: "as distributed by Zhang et al. 2015 (R1)"
+    checksum: "TODO@first-verification"
+    license: "CC-BY-SA (DBpedia)"
+    access: open
+    role: eval
+  - id: D4
+    name: "Yelp Review Polarity"
+    resolve: { hf: "yelp_polarity" }
+    version: "as distributed by Zhang et al. 2015 (R1)"
+    checksum: "TODO@first-verification"
+    license: "Yelp Dataset Agreement"
+    access: open
+    role: eval
+  - id: D5
+    name: "Yelp Review Full"
+    resolve: { hf: "yelp_review_full" }
+    version: "as distributed by Zhang et al. 2015 (R1)"
+    checksum: "TODO@first-verification"
+    license: "Yelp Dataset Agreement"
+    access: open
+    role: eval
+  - id: D6
+    name: "Yahoo! Answers Topics"
+    resolve: { hf: "yahoo_answers_topics" }
+    version: "as distributed by Zhang et al. 2015 (R1)"
+    checksum: "TODO@first-verification"
+    license: "Yahoo Webscope terms"
+    access: gated
+    role: eval
+  - id: D7
+    name: "Amazon Review Full"
+    resolve: { hf: "amazon_review_full" }
+    version: "as distributed by Zhang et al. 2015 (R1)"
+    checksum: "TODO@first-verification"
+    license: "research use"
+    access: open
+    role: eval
+  - id: D8
+    name: "Amazon Review Polarity"
+    resolve: { hf: "amazon_polarity" }
+    version: "as distributed by Zhang et al. 2015 (R1)"
+    checksum: "TODO@first-verification"
+    license: "research use"
+    access: open
+    role: eval
+  - id: D9
+    name: "YFCC100M (titles and captions subset)"
+    resolve: { doi: "10.1145/2812802" }   # Thomee et al. 2016, CACM - dataset paper
+    version: "subset described in Sec. 5 of the encoded paper"
+    checksum: "TODO@first-verification"
+    license: "CC (per-item, mixed)"
+    access: gated
+    role: eval

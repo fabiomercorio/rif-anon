@@ -28,6 +28,8 @@ experiments.yaml      # protocols + results + replication commands
 insights.yaml         # author voice: contributions, reading, watchpoints, outlook
 style.yaml            # style corpus (author's prior papers) + register + lexicon
 figures/              # original figures (verbatim assets) + figures.yaml manifest
+references.yaml       # related work as resolvable nodes (rif:// | doi | arxiv | bibtex)
+datasets.yaml         # first-class dataset nodes, resolved to existing repositories
 narrative/*.md        # prose blocks tagged by claim and audience
 profiles/*.yaml       # predefined reader profiles
 ```
@@ -112,7 +114,45 @@ figures:
 If an `original` figure anchors a claim present in the view, it takes precedence over
 any generated visual; generated visuals are always labelled as renderer-generated.
 
-## 9. Reader profiles and rendering rules
+## 9. References: `references.yaml` (resolve, don't host)
+
+Related work is a set of typed, resolvable nodes - not a prose section:
+
+```yaml
+references:
+  - id: R2
+    resolve: { arxiv: "1606.01781" }   # levels: rif:// (claim-level, best) |
+    label: "Conneau et al. (2017), VDCNN, EACL"   #   doi/arxiv/openalex | bibtex (fallback)
+    role: baseline        # baseline | method-source | dataset-source | positioning
+    anchored_by: [C4, E1]
+```
+
+The `rif://repo/C3` level anchors a *claim* of another RIF repository: related work
+becomes a typed graph merge. **The bibliography of a view is a derived artifact**:
+the renderer generates it from the reference nodes actually anchored in that view,
+in the citation style of the target venue.
+
+## 10. Datasets: `datasets.yaml` (resolve, don't host)
+
+Datasets are first-class nodes that evidence items point to:
+
+```yaml
+datasets:
+  - id: D3
+    name: "DBpedia ontology classification"
+    resolve: { hf: "dbpedia_14" }      # hf | doi (DataCite/Zenodo) | openml | uri
+    version: "..."                     # revision/commit
+    checksum: "sha256:..."
+    license: "CC-BY-SA"
+    access: open                       # open | gated | private
+    role: eval                         # train | eval | source
+```
+
+Version + checksum are the stable identity that re-execution needs to promote
+`as-reported` results to `verified`; without them provenance grades cannot be
+audited.
+
+## 11. Reader profiles and rendering rules
 
 ```yaml
 profile:
