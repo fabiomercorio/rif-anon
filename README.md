@@ -1,8 +1,6 @@
 # RIF — Research Interchange Format (anonymous review artifact)
 
-Supplementary artifact for the EACL 2027 submission *"The Paper Is a View: A Research
-Interchange Format for Authoring, Reviewing, and Indexing Research in the Age of
-AI-Assisted Science"*.
+Supplementary artifact for the EACL 2027 submission *"RIF: A Research Interchange Format for Scientific Research in the Age of AI-Assisted Science"*.
 
 ## Contents
 
