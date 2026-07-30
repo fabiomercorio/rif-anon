@@ -163,7 +163,31 @@
     color: var(--code-ink); font-family: ui-monospace, "SF Mono", Menlo, monospace;
     font-size: .72rem; line-height: 1.5; overflow-x: auto;
     border-radius: 0 0 10px 10px; max-height: 70vh; overflow-y: auto; }
+  .btn-pdf { font: inherit; font-size: .78rem; font-weight: 600; color: var(--claim);
+    background: var(--claim-bg); border: 1px solid var(--claim); border-radius: 6px;
+    padding: 4px 12px; cursor: pointer; margin-left: 10px; vertical-align: middle; }
+  .btn-pdf:hover { background: var(--claim); color: var(--paper); }
+  .printhead { display: none; }
   @media (prefers-reduced-motion: reduce) { .node { transition: none; } }
+
+  @page { size: A4; margin: 17mm 15mm; }
+  @media print {
+    * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    body { background: #fff; color: #111; }
+    header, .profiles, .hint, .btn-pdf, details.src,
+    section[aria-label="RIF source"], .pane-label { display: none !important; }
+    .panes { display: block; }
+    .printhead { display: block; text-align: center; margin: 0 0 5mm;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 7.5pt; color: #555;
+      border-bottom: .3pt solid #999; padding-bottom: 2mm; }
+    .render { border: none; border-radius: 0; padding: 0; background: #fff;
+      column-count: 2; column-gap: 7mm; font-size: 9.3pt; line-height: 1.45; }
+    .render h2 { column-span: all; text-align: center; font-size: 15pt; margin-bottom: 2mm; }
+    .render .meta { column-span: all; text-align: center; margin-bottom: 5mm; }
+    .render h3 { font-size: 10.5pt; }
+    table.gentab, .figure, .author, .eq, .bib { break-inside: avoid; }
+    .wrap { max-width: none; padding: 0; }
+  }
 </style>
 
 <div class="wrap">
@@ -275,7 +299,9 @@
     </section>
 
     <section aria-label="Generated view">
-      <p class="pane-label">Generated view · <span id="vlabel"></span></p>
+      <p class="pane-label">Generated view · <span id="vlabel"></span>
+        <button class="btn-pdf" onclick="window.print()" title="Print this view as a paper-like PDF (use 'Save as PDF')">&#11015; PDF of this view</button></p>
+      <div class="printhead" id="printhead"></div>
       <article class="render" id="render"></article>
       <p class="hint">Every sentence is anchored to a node: click a reference
       <button class="cref" onclick="flash('C4')">C4</button> to trace it back to the
@@ -634,6 +660,9 @@ function setProfile(p) {
     b.setAttribute("aria-pressed", String(b.dataset.p === p)));
   document.getElementById("render").innerHTML = RENDERINGS[p];
   document.getElementById("vlabel").textContent = PROFILES[p].label;
+  document.getElementById("printhead").innerHTML =
+    "RIF · generated view — dynamic paper · profile: " + PROFILES[p].label +
+    " · rendered from rif://joulin-2017-fasttext · every sentence anchored to the claim graph";
   drawGraph(p);
 }
 function flash(id) {
